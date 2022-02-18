@@ -19,7 +19,7 @@ export default class GraphArea extends Component {
                     }
                     key="1"
                 >
-                    <TreeGraph />
+                    <TreeGraph data={this.props.data} />
                 </TabPane>
                 <TabPane
                     tab={
@@ -30,7 +30,7 @@ export default class GraphArea extends Component {
                     }
                     key="2"
                 >
-                    <PieGraph />
+                    <PieGraph data={this.props.data} />
                 </TabPane>
                 <TabPane
                     tab={
@@ -41,7 +41,7 @@ export default class GraphArea extends Component {
                     }
                     key="3"
                 >
-                    <MapGraph />
+                    <MapGraph data={this.props.data} />
                 </TabPane>
             </Tabs>
         )

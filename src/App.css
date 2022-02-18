@@ -38,3 +38,33 @@
     transform: rotate(360deg);
   }
 }
+.content{
+  display: flex;
+}
+.getData{
+  width: 100%;
+  height: 4vh;
+  background-color: black;
+}
+
+.treeMenu{
+ width: 15%;
+ height: 100vh;
+ overflow: scroll;
+ 
+ /* background-color: #282c34; */
+}
+
+.displayArea{
+ flex: 1;
+ /* background-color: #61dafb; */
+}
+
+.tableArea{
+  width: 100%;
+  height: 30vh;
+  overflow: scroll;
+  /* border: 1px solid gray; */
+  /* background-color: black; */
+}
+
