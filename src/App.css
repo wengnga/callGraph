@@ -48,11 +48,11 @@
 }
 
 .treeMenu{
- width: 15%;
+ width: 20%;
  height: 100vh;
  overflow: scroll;
  
- /* background-color: #282c34; */
+ background-color: #282c34;
 }
 
 .displayArea{

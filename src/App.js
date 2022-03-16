@@ -7,16 +7,17 @@ import DataList from './Components/DataList';
 import GraphArea from './Components/GraphArea';
 export default class App extends Component {
   state = {
+    currentSelectNode: {},
     expandedTreeMenuKeys: [
-      "0-0-1"
+      "func-0-0-0"
     ],
     selectedTreeMenuKeys: [
-      "0-0-1"
+      "func-0-0-0"
     ],
     fakeData: { //title:string,name:string,key:string,value:num,total:string(100% 100% 100%),self:string((100% 100% 100%)),children:array
       "name": "func0",
       "title": "func0",
-      "key": "0-0",
+      "key": "func-0-0-0",
       "value": 100,
       "total": "100%",
       "self": "0%",
@@ -24,7 +25,7 @@ export default class App extends Component {
         {
           "name": "func1",
           "title": "func1",
-          "key": "0-0-0",
+          "key": "func1-0-0-0",
           "value": 45,
           "total": "45%",
           "self": "0%",
@@ -32,24 +33,122 @@ export default class App extends Component {
             {
               "name": "func3",
               "title": "func3",
-              "key": "0-0-0-0",
+              "key": "func3-0-0-0-0",
               "value": 20,
               "total": "20%",
               "self": "0%",
+              children: [
+                {
+                  "name": "func8",
+                  "title": "func8",
+                  "key": "func8-0-0-0-0-0",
+                  "value": 1,
+                  "total": "20%",
+                  "self": "0%",
+                },
+                {
+                  "name": "func9",
+                  "title": "func9",
+                  "key": "func9-0-0-0-0-0",
+                  "value": 19,
+                  "total": "20%",
+                  "self": "0%",
+                }
+              ]
             }, {
               "name": "func4",
               "title": "func4",
-              "key": "0-0-0-1",
+              "key": "func4-0-0-0-1",
               "value": 25,
               "total": "25%",
               "self": "0%",
+              children: [
+                {
+                  "name": "func10",
+                  "title": "func10",
+                  "key": "func10-0-0-0-0-1",
+                  "value": 2,
+                  "total": "25%",
+                  "self": "0%",
+                },
+                {
+                  "name": "func11",
+                  "title": "func11",
+                  "key": "func11-0-0-0-0-1",
+                  "value": 5,
+                  "total": "25%",
+                  "self": "0%",
+                },
+                {
+                  "name": "func12",
+                  "title": "func12",
+                  "key": "func12-0-0-0-0-2",
+                  "value": 18,
+                  "total": "25%",
+                  "self": "0%",
+                  children: [
+                    {
+                      "name": "func13",
+                      "title": "func13",
+                      "key": "func13-0-0-0-0-0-0",
+                      "value": 5,
+                      "total": "25%",
+                      "self": "0%",
+                    },
+                    {
+                      "name": "func14",
+                      "title": "func14",
+                      "key": "func14-0-0-0-0-0-1",
+                      "value": 13,
+                      "total": "25%",
+                      "self": "0%",
+                      children: [
+                        {
+                          "name": "func15",
+                          "title": "func15",
+                          "key": "func15-0-0-0-0-0-0-0",
+                          "value": 4,
+                          "total": "25%",
+                          "self": "0%",
+                        },
+                        {
+                          "name": "func16",
+                          "title": "func16",
+                          "key": "func16-0-0-0-0-0-0-1",
+                          "value": 2,
+                          "total": "25%",
+                          "self": "0%",
+                        },
+                        {
+                          "name": "func17",
+                          "title": "func17",
+                          "key": "func17-0-0-0-0-0-0-2",
+                          "value": 7,
+                          "total": "25%",
+                          "self": "0%",
+                          children: [
+                            {
+                              "name": "func18",
+                              "title": "func18",
+                              "key": "func18-0-0-0-0-0-0-2",
+                              "value": 7,
+                              "total": "25%",
+                              "self": "0%",
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
             }
           ]
         },
         { //title:string,name:string,key:string,value:num,total:string(100% 100% 100%),self:string((100% 100% 100%)),children:array
           "name": "func2",
           "title": "func2",
-          "key": "0-0-1",
+          "key": "func2-0-0-1",
           "value": 55,
           "total": "55%",
           "self": "0%",
@@ -57,21 +156,21 @@ export default class App extends Component {
             { //title:string,name:string,key:string,value:num,total:string(100% 100% 100%),self:string((100% 100% 100%)),children:array
               "name": "func5",
               "title": "func5",
-              "key": "0-0-1-0",
+              "key": "func5-0-0-1-0",
               "value": 15,
               "total": "15%",
               "self": "0%"
             }, { //title:string,name:string,key:string,value:num,total:string(100% 100% 100%),self:string((100% 100% 100%)),children:array
               "name": "func6",
               "title": "func6",
-              "key": "0-0-1-1",
+              "key": "func6-0-0-1-1",
               "value": 10,
               "total": "10%",
               "self": "0%"
             }, { //title:string,name:string,key:string,value:num,total:string(100% 100% 100%),self:string((100% 100% 100%)),children:array
               "name": "func7",
               "title": "func7",
-              "key": "0-0-1-2",
+              "key": "func7-0-0-1-2",
               "value": 30,
               "total": "30%",
               "self": "0%"
@@ -547,39 +646,58 @@ export default class App extends Component {
     ]
 
   }
+  componentDidMount() {
+    this.setState({
+      currentSelectNode: this.state.fakeData
+    })
+  }
+  setExpandedTreeMenuKeys = (expandedKeys) => {
+    this.setState({
+      expandedTreeMenuKeys: expandedKeys
+    })
+  }
+  setCurrentSelectNode = (selectedKeys, node) => {
+    console.log(node)
+    this.setState({
+      selectedTreeMenuKeys: selectedKeys,
+      currentSelectNode: node
+    });
+  }
 
   render() {
     return (
-      <div className="App">
-        <div className="content">
-          {/* 页面左边的树形菜单 起始 */}
-          <div className="treeMenu">
-            <TreeMenu treeMenuData={[this.state.fakeData]} expandedKeys={this.state.expandedTreeMenuKeys} selectedKeys={this.state.selectedTreeMenuKeys}></TreeMenu>
-          </div>
-          {/* 页面左边的树形菜单 结束 */}
-
-          {/* 页面展示数据的部分，包括文字列表和图形区 起始 */}
-          <div className="displayArea">
-            {/* <div className="getData"></div> */}
-
-            {/* 文字列表 起始 */}
-            <div className="tableArea">
-              <DataList></DataList>
+      <>
+        <div className="App">
+          <div className="content">
+            {/* 页面左边的树形菜单 */}
+            <div className="treeMenu">
+              <TreeMenu setCurrentSelectNode={this.setCurrentSelectNode} expandedTreeMenuKeys={this.state.expandedTreeMenuKeys} setExpandedTreeMenuKeys={this.setExpandedTreeMenuKeys} treeMenuData={[this.state.fakeData]} selectedKeys={this.state.selectedTreeMenuKeys}></TreeMenu>
             </div>
-            {/* 文字列表 结束 */}
+            {/* end of 页面左边的树形菜单 */}
 
-            {/* 图形区 起始 */}
-            <div className="graphArea">
-              <GraphArea data={this.state.fakeData}></GraphArea>
+            {/* 页面展示数据的部分，包括文字列表和图形区 起始 */}
+            <div className="displayArea">
+              {/* <div className="getData"></div> */}
+
+              {/* 文字列表 */}
+              <div className="tableArea">
+                <DataList dataSource={this.state.currentSelectNode?.children} ></DataList>
+              </div>
+              {/* end of 文字列表 */}
+
+              {/* 图形区 */}
+              <div className="graphArea">
+                <GraphArea setCurrentSelectNode={this.setCurrentSelectNode} expandedTreeMenuKeys={this.state.expandedTreeMenuKeys} setExpandedTreeMenuKeys={this.setExpandedTreeMenuKeys} data={this.state.currentSelectNode?.children} allData={this.state.fakeData}></GraphArea>
+              </div>
+              {/* end of 图形区 */}
+
             </div>
-            {/* 图形区 结束 */}
-
+            {/* end of 页面展示数据的部分，包括文字列表和图形区 */}
           </div>
-          {/* 页面展示数据的部分，包括文字列表和图形区 结束 */}
+
+
         </div>
-
-
-      </div>
+      </>
     )
   }
 }

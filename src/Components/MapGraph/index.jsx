@@ -57,7 +57,7 @@ export default class MapGraph extends Component {
 
     componentDidMount() {
         this.setState({
-            options: this.getOption(this.props.data)
+            options: this.getOption(this.props.allData)
         })
 
     }

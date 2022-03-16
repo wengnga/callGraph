@@ -30,11 +30,14 @@ const data = [
 ];
 
 export default class DataList extends Component {
-
+    componentDidMount() {
+        console.log("!!!!!!!!!!")
+        console.log(this.props)
+    }
     render() {
         return (
             <div>
-                <Table columns={columns} dataSource={data} size="small" pagination={false} />
+                <Table {...this.props} columns={columns} size="small" pagination={false} />
             </div>
         )
     }

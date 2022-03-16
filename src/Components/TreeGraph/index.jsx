@@ -20,7 +20,7 @@ export default class TreeGraph extends Component {
                 series: [
                     {
                         type: 'tree',
-                        data: [this.props.data],
+                        data: [this.props.allData],
                         top: '1%',
                         left: '7%',
                         bottom: '1%',

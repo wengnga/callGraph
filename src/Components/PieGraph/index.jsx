@@ -33,7 +33,7 @@ export default class PieGraph extends Component {
                     name: 'Access From',
                     type: 'pie',
                     radius: '50%',
-                    data: this.props.data.children[1].children,
+                    data: this.props.data,
                     tooltip: {
                         formatter: `{b} {c}<br/>100% 100% 100%<br/>100% 100% 100%`
                     },
@@ -61,7 +61,12 @@ export default class PieGraph extends Component {
 
 
     switchToAnthorPie(e) {
-        console.log(e)
+        console.log(e);
+        const { setCurrentSelectNode, setExpandedTreeMenuKeys, expandedTreeMenuKeys } = this.props;
+        if (e.data.children !== undefined) { // 要有数据切换饼图
+            setCurrentSelectNode([e.data.key], e.data);
+            setExpandedTreeMenuKeys([...expandedTreeMenuKeys, e.data.key])
+        }
     }
 
     render() {
