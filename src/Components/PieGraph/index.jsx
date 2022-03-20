@@ -63,7 +63,7 @@ export default class PieGraph extends Component {
     switchToAnthorPie(e) {
         console.log(e);
         const { setCurrentSelectNode, setExpandedTreeMenuKeys, expandedTreeMenuKeys } = this.props;
-        if (e.data.children !== undefined) { // 要有数据切换饼图
+        if (e.data.children?.length > 0) { // 要有数据切换饼图
             setCurrentSelectNode([e.data.key], e.data);
             setExpandedTreeMenuKeys([...expandedTreeMenuKeys, e.data.key])
         }

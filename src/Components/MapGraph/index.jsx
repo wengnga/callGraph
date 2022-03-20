@@ -22,7 +22,7 @@ export default class MapGraph extends Component {
                     type: 'treemap',
                     visibleMin: 300,
                     data: tempData.children,
-                    leafDepth: 4, //能看见的深度
+                    leafDepth: 10, //能看见的深度
                     levels: [
                         {
                             itemStyle: {
@@ -56,14 +56,15 @@ export default class MapGraph extends Component {
     };
 
     componentDidMount() {
-        this.setState({
-            options: this.getOption(this.props.allData)
-        })
+        // this.setState({
+        //     options: this.getOption(this.props.allData)
+        // })
 
     }
+
     render() {
         return (
-            <ReactEcharts option={this.state.options} />
+            <ReactEcharts option={this.getOption(this.props.allData)} />
         )
     }
 }

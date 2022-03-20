@@ -13,7 +13,7 @@ export default class TreeMenu extends Component {
         if (!expandedTreeMenuKeys.includes(selectedKeys[0])) {
             setExpandedTreeMenuKeys([...expandedTreeMenuKeys, ...selectedKeys])
         }
-        if (info.node.children !== undefined) this.props.setCurrentSelectNode(selectedKeys, info.node);
+        if (info.node.children?.length > 0) this.props.setCurrentSelectNode(selectedKeys, info.node);
     };
 
     onExpand = (expandedKeys, info) => {

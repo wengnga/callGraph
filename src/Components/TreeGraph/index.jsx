@@ -10,55 +10,61 @@ export default class TreeGraph extends Component {
     switchToAnthorPie(e) {
         console.log(e)
     }
-    componentDidMount() {
-        this.setState({
-            options: {
-                tooltip: {
-                    trigger: 'item',
-                    triggerOn: 'mousemove'
-                },
-                series: [
-                    {
-                        type: 'tree',
-                        data: [this.props.allData],
-                        top: '1%',
-                        left: '7%',
-                        bottom: '1%',
-                        right: '20%',
-                        symbolSize: 7,
+    getOptions = () => {
+        console.log("treeGraph:   ", this.props)
+
+        return {
+            tooltip: {
+                trigger: 'item',
+                triggerOn: 'mousemove'
+            },
+            series: [
+                {
+                    type: 'tree',
+                    data: [this.props.allData],
+                    top: '1%',
+                    left: '7%',
+                    bottom: '1%',
+                    right: '20%',
+                    initialTreeDepth: 10, // 树节点全部展开
+                    symbolSize: 7,
+                    label: {
+                        position: 'left',
+                        verticalAlign: 'middle',
+                        align: 'right',
+                        fontSize: 9
+                    },
+                    leaves: {
                         label: {
-                            position: 'left',
+                            position: 'right',
                             verticalAlign: 'middle',
-                            align: 'right',
-                            fontSize: 9
-                        },
-                        leaves: {
-                            label: {
-                                position: 'right',
-                                verticalAlign: 'middle',
-                                align: 'left'
-                            }
-                        },
-                        emphasis: {
-                            focus: 'descendant'
-                        },
-                        expandAndCollapse: true,
-                        animationDuration: 550,
-                        animationDurationUpdate: 750
-                    }
-                ]
-            }
-        }, () => {
-            console.log(this.state.options)
-        });
+                            align: 'left'
+                        }
+                    },
+                    emphasis: {
+                        focus: 'descendant'
+                    },
+                    expandAndCollapse: true,
+                    animationDuration: 550,
+                    animationDurationUpdate: 750,
+                    symbolSize: 10,
+                    roam: true
+                },
+
+            ],
+
+        }
+    }
+    componentDidMount() {
+        console.log("treeGraph:   ", this.props)
+
 
     }
 
 
     render() {
         return (
-            <ReactEcharts option={this.state.options} ref={node => { this.echartspie = node }} onEvents={this.onEvents} />
-
+            <ReactEcharts option={this.getOptions()} ref={node => { this.echartspie = node }} onEvents={this.onEvents} />
         )
     }
 }

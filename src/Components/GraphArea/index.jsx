@@ -1,15 +1,16 @@
 import React, { Component } from 'react'
 import { Tabs } from 'antd';
-import { ApartmentOutlined, PieChartOutlined, AppstoreOutlined } from '@ant-design/icons';
+import { ApartmentOutlined, PieChartOutlined, AppstoreOutlined, ClusterOutlined } from '@ant-design/icons';
 import TreeGraph from '../TreeGraph';
 import PieGraph from '../PieGraph';
 import MapGraph from '../MapGraph';
+import DiagramWrapper from '../DiagramWrapper';
 
 const { TabPane } = Tabs;
 export default class GraphArea extends Component {
     render() {
         return (
-            <Tabs defaultActiveKey="2" tabPosition="top" centered>
+            <Tabs defaultActiveKey="treeGraph" tabPosition="top" centered>
                 <TabPane
                     tab={
                         <span>
@@ -17,9 +18,20 @@ export default class GraphArea extends Component {
                             Tree Graph
                         </span>
                     }
-                    key="1"
+                    key="treeGraph"
                 >
                     <TreeGraph {...this.props} />
+                </TabPane>
+                <TabPane
+                    tab={
+                        <span>
+                            <ClusterOutlined />
+                            UML Graph
+                        </span>
+                    }
+                    key="umlGraph"
+                >
+                    <DiagramWrapper {...this.props} />
                 </TabPane>
                 <TabPane
                     tab={
@@ -28,7 +40,7 @@ export default class GraphArea extends Component {
                             Pie Graph
                         </span>
                     }
-                    key="2"
+                    key="pieGraph"
                 >
                     <PieGraph {...this.props} />
                 </TabPane>
@@ -39,7 +51,7 @@ export default class GraphArea extends Component {
                             Map Graph
                         </span>
                     }
-                    key="3"
+                    key="mapGraph"
                 >
                     <MapGraph {...this.props} />
                 </TabPane>
