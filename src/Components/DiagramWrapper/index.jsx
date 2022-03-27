@@ -7,7 +7,11 @@ export default class DiagramWrapper extends Component {
     const diagram =
       $(go.Diagram,
         {
+          initialContentAlignment: go.Spot.Center,
           "undoManager.isEnabled": true,
+          'commandHandler.deletesTree': true,
+          'grid.visible': false,//Whether there is a grid on the canvas
+          scale: 0.7,
           model: $(go.GraphLinksModel, {
             linkKeyProperty: 'key'  // this should always be set when using a GraphLinksModel
           }),
@@ -18,9 +22,20 @@ export default class DiagramWrapper extends Component {
               setsPortSpot: false,  // keep Spot.AllSides for link connection spot
               setsChildPortSpot: false,  // keep Spot.AllSides
               // nodes not connected by "generalization" links are laid out horizontally
-              arrangement: go.TreeLayout.ArrangementHorizontal
+              arrangement: go.TreeLayout.ArrangementHorizontal,
+              isInitial: true,
+              isOngoing: false,
             })
-        });
+
+          // layout: $(go.ForceDirectedLayout, {
+          //   isInitial: true,
+          //   isOngoing: false,
+          //   defaultSpringLength: 50,
+          //   defaultElectricalCharge: 200,
+          // })
+        }
+
+      );
     // show visibility or access as a single character at the beginning of each property or method
     function convertVisibility(v) {
       switch (v) {
@@ -109,7 +124,7 @@ export default class DiagramWrapper extends Component {
           },
           locationSpot: go.Spot.Center,
           fromSpot: go.Spot.AllSides,
-          toSpot: go.Spot.AllSides
+          toSpot: go.Spot.AllSides,
         },
         $(go.Shape, "RoundedRectangle", { fill: "white", strokeWidth: 2, stroke: "grey" },
           // the Shape.stroke color depends on whether Node.isHighlighted is true
@@ -178,7 +193,11 @@ export default class DiagramWrapper extends Component {
     }
     diagram.linkTemplate =
       $(go.Link,
-        { routing: go.Link.Orthogonal, },
+        {
+          routing: go.Link.Orthogonal,
+          corner: 0,
+          layerName: 'Background'//Do not cross in front of any nodes
+        },
         new go.Binding("isLayoutPositioned", "relationship", convertIsTreeLink),
         $(go.Shape,// the Shape.stroke color depends on whether Link.isHighlighted is true
           new go.Binding("stroke", "isHighlighted", function (h) { return h ? "red" : "white"; })

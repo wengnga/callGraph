@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import ReactEcharts from 'echarts-for-react';
+import { nanoid } from 'nanoid';
 export default class PieGraph extends Component {
     constructor(props) {
         super(props);
@@ -14,10 +15,33 @@ export default class PieGraph extends Component {
     饼图的配置对象
     */
     getOption = () => {
+        const data = this.props.data;
+        const selfAvg = parseFloat(data[0].self?.split(" ")[1]);
+        console.log("selfAvg: ", selfAvg);
+        if (selfAvg > 0) {
+            const len = data[0]?.children?.length;
+            if (data[0]?.children[len - 1]?.name !== "self") {
+                data[0]?.children?.push(
+                    {
+                        name: "self",
+                        title: "self",
+                        "category": "step",
+                        text: "self",
+                        key: `${data[0]?.key?.split("_"[0])}_self_${nanoid()}`,
+                        total: "",
+                        self: "",
+                        children: [],
+                        value: selfAvg
+                    }
+                )
+            }
+
+        }
+        console.log("data: !!!!!", data);
         return {
             title: {
-                text: 'Referer of a Website',
-                subtext: 'Fake Data',
+                text: 'Pie Graph',
+                // subtext: 'Fake Data',
                 left: 'center'
             },
             tooltip: {
@@ -33,7 +57,7 @@ export default class PieGraph extends Component {
                     name: 'Access From',
                     type: 'pie',
                     radius: '50%',
-                    data: this.props.data,
+                    data: data,
                     tooltip: {
                         formatter: `{b} {c}<br/>100% 100% 100%<br/>100% 100% 100%`
                     },
