@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import ReactEcharts from 'echarts-for-react';
+import echartsTheme from '../../echartsTheme';
 import { nanoid } from 'nanoid';
 export default class PieGraph extends Component {
     constructor(props) {
@@ -40,18 +41,18 @@ export default class PieGraph extends Component {
         console.log("data: !!!!!", data);
         return {
             title: {
-                text: 'Pie Graph',
+                // text: 'Pie Graph',
                 // subtext: 'Fake Data',
                 left: 'center'
             },
             tooltip: {
                 trigger: 'item'
             },
-            legend: {
-                orient: 'vertical',
-                left: 'left',
-                selectedMode: false //禁止点击左上角不显示
-            },
+            // legend: {
+            //     orient: 'vertical',
+            //     left: 'left',
+            //     selectedMode: false //禁止点击左上角不显示
+            // },
             series: [
                 {
                     name: 'Access From',
@@ -59,14 +60,18 @@ export default class PieGraph extends Component {
                     radius: '50%',
                     data: data,
                     tooltip: {
-                        formatter: `{b} {c}<br/>100% 100% 100%<br/>100% 100% 100%`
+                        formatter: function (params) {
+                            const { data: { name, value, self, total } } = params;
+                            return `${name}: ${value}%<br/>${total}<br/>${self}`
+                        }
                     },
                     label: {
                         normal: {
-                            formatter: '{b}:{c}: ({d}%)', /* a（系列名称），b（数据项名称），c（数值）, d（百分比） */
+                            formatter: '{b}:{c}%: ({d}%)', /* a（系列名称），b（数据项名称），c（数值）, d（百分比） */
                             textStyle: {
                                 fontWeight: 'normal',
-                                fontSize: 12
+                                fontSize: 12,
+                                color: "white",
                             }
                         }
                     },
@@ -95,7 +100,9 @@ export default class PieGraph extends Component {
 
     render() {
         return (
-            <ReactEcharts option={this.getOption()} ref={node => { this.echartspie = node }} onEvents={this.onEvents} />
+            <ReactEcharts option={this.getOption()} ref={node => { this.echartspie = node }} onEvents={this.onEvents}
+                theme={echartsTheme}
+                style={{ width: '100%', height: '50%' }} />
         )
     }
 }

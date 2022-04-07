@@ -1,10 +1,12 @@
 import React, { Component } from 'react'
 import { Upload, Button } from 'antd';
+import { SettingOutlined } from '@ant-design/icons';
 import logo from './logo.svg';
-import './App.css';
+import './App.less';
 import TreeMenu from './Components/TreeMenu';
 import DataList from './Components/DataList';
 import GraphArea from './Components/GraphArea';
+import SettingDrawer from './Components/SettingDrawer';
 import { Scrollbars } from 'react-custom-scrollbars'
 import Sidebar from './Components/Sidebar';
 import { nanoid } from 'nanoid';
@@ -490,6 +492,7 @@ export default class App extends Component {
 
                 {/* 图形区 */}
                 <div className="graphArea">
+                  <SettingDrawer />
                   <GraphArea
                     setCurrentSelectNode={this.setCurrentSelectNode}
                     expandedTreeMenuKeys={this.state.expandedTreeMenuKeys}

@@ -12,6 +12,7 @@ export default class GraphArea extends Component {
         return (
             <Tabs defaultActiveKey="treeGraph" tabPosition="top" centered>
                 <TabPane
+                    style={{ height: '800px' }}
                     tab={
                         <span>
                             <ApartmentOutlined />
@@ -34,6 +35,7 @@ export default class GraphArea extends Component {
                     <DiagramWrapper {...this.props} />
                 </TabPane>
                 <TabPane
+                    style={{ height: '800px' }}
                     tab={
                         <span>
                             <PieChartOutlined />
@@ -45,6 +47,7 @@ export default class GraphArea extends Component {
                     <PieGraph {...this.props} />
                 </TabPane>
                 <TabPane
+                    style={{ height: '800px' }}
                     tab={
                         <span>
                             <AppstoreOutlined />

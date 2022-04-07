@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import ReactEcharts from 'echarts-for-react'
+import echartsTheme from '../../echartsTheme'
 export default class TreeGraph extends Component {
     state = {
         options: {}
@@ -32,7 +33,14 @@ export default class TreeGraph extends Component {
                         position: 'left',
                         verticalAlign: 'middle',
                         align: 'right',
-                        fontSize: 9
+                        fontSize: 9,
+                        color: "white",
+                    },
+                    tooltip: {
+                        trigger: 'item',
+                        triggerOn: 'mousemove',
+                        enterable: true,//鼠标是否可进入提示框浮层中
+                        formatter: '{c}%', /* a（系列名称），b（数据项名称），c（数值）, d（百分比） */
                     },
                     leaves: {
                         label: {
@@ -56,6 +64,7 @@ export default class TreeGraph extends Component {
         }
     }
     componentDidMount() {
+        // echarts.registerTheme('theme', echartsTheme);
         console.log("treeGraph:   ", this.props)
 
 
@@ -64,7 +73,10 @@ export default class TreeGraph extends Component {
 
     render() {
         return (
-            <ReactEcharts option={this.getOptions()} ref={node => { this.echartspie = node }} onEvents={this.onEvents} />
+            <ReactEcharts option={this.getOptions()} ref={node => { this.echartspie = node }} onEvents={this.onEvents}
+                theme={echartsTheme}
+                style={{ width: '100%', height: '100%', backgroundColor: '#1e1e1e' }}
+            />
         )
     }
 }

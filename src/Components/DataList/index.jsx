@@ -6,27 +6,17 @@ const columns = [
         dataIndex: 'name',
     },
     {
-        title: 'persentage',
+        title: 'persentage (%)',
         dataIndex: 'value',
     },
     {
-        title: 'Description',
-        dataIndex: 'description',
-    },
-];
-const data = [
-    {
-        key: '1',
-        name: 'func1',
-        value: 45 + "%",
-        description: 'some description',
+        title: 'total',
+        dataIndex: 'total',
     },
     {
-        key: '2',
-        name: 'func2',
-        value: 55 + "%",
-        description: 'some description',
-    }
+        title: 'self',
+        dataIndex: 'self',
+    },
 ];
 
 export default class DataList extends Component {
