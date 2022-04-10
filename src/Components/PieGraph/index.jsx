@@ -12,12 +12,15 @@ export default class PieGraph extends Component {
             'click': this.switchToAnthorPie.bind(this), //配置点击事件处理程序
         }
     }
+    componentDidMount() {
+        console.log("pie graph props: ", this.props)
+    }
     /*
     饼图的配置对象
     */
     getOption = () => {
         const data = this.props.data;
-        const selfAvg = parseFloat(data[0].self?.split(" ")[1]);
+        const selfAvg = parseFloat(data[0]?.self?.split(" ")[1]);
         console.log("selfAvg: ", selfAvg);
         if (selfAvg > 0) {
             const len = data[0]?.children?.length;
@@ -41,7 +44,7 @@ export default class PieGraph extends Component {
         console.log("data: !!!!!", data);
         return {
             title: {
-                // text: 'Pie Graph',
+                text: this.props.title,
                 // subtext: 'Fake Data',
                 left: 'center'
             },

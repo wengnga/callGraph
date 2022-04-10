@@ -23,7 +23,8 @@ export default class MapGraph extends Component {
     /*
     块状映射图的配置对象
     */
-    getOption = (tempData) => {
+    getOption = (tempData, settings) => {
+        const { leafDepth, treeMapWidth, treeMapHeight, treeMapVisibleMin, childrenVisibleMin } = settings;
         return {
             title: {
                 // text: 'Map Graph',
@@ -40,7 +41,10 @@ export default class MapGraph extends Component {
                 {
                     name: 'func',
                     type: 'treemap',
-                    // visibleMin: 300,
+                    width: `${treeMapWidth}%`,
+                    height: `${treeMapHeight}%`,
+                    visibleMin: treeMapVisibleMin,
+                    childrenVisibleMin: childrenVisibleMin,
                     label: {
                         show: true,
                         formatter: '{b}',
@@ -72,10 +76,11 @@ export default class MapGraph extends Component {
                     //     // borderColorSaturation: 1,
 
                     // },
-                    leafDepth: 4, //能看见的深度
+                    leafDepth: leafDepth, //能看见的深度
                     levels: [
                         // 1
                         {
+
                             itemStyle: {
                                 normal: {
                                     color: '#dd6b66',
@@ -783,7 +788,7 @@ export default class MapGraph extends Component {
 
     render() {
         return (
-            <ReactEcharts option={this.getOption(this.props.allData)}
+            <ReactEcharts option={this.getOption(this.props.allData, this.props.settings)}
                 onEvents={this.onEvents}
                 theme={echartsTheme}
                 style={{ width: '100%', height: '50%' }} />

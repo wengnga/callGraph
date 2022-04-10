@@ -3,6 +3,7 @@ import * as go from 'gojs';
 import { ReactDiagram } from 'gojs-react';
 export default class DiagramWrapper extends Component {
   initDiagram = () => {
+    console.log("initDiagram @@@@@@@@@@@@@@@@@@@@@@");
     const $ = go.GraphObject.make;
     const diagram =
       $(go.Diagram,
@@ -24,7 +25,7 @@ export default class DiagramWrapper extends Component {
               // nodes not connected by "generalization" links are laid out horizontally
               arrangement: go.TreeLayout.ArrangementHorizontal,
               isInitial: true,
-              isOngoing: false,
+              // isOngoing: false,
             })
 
           // layout: $(go.ForceDirectedLayout, {

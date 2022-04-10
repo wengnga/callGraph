@@ -280,12 +280,25 @@ export default class App extends Component {
     ],
     nodeList: {},
     relationList: {},
+    settings: {
+      leafDepth: 5,
+      treeMapWidth: 80,
+      treeMapHeight: 80,
+      treeMapVisibleMin: 100,
+      childrenVisibleMin: 200,
+    }
 
   }
   allAdditionNodes = {};
   componentDidMount() {
 
   }
+  setSettings = (values) => {
+    this.setState({
+      settings: values
+    })
+  }
+
   setExpandedTreeMenuKeys = (expandedKeys) => {
     console.log("expandedKey !!!!!!!!!!!!!!!!!:", expandedKeys)
     this.setState({
@@ -448,8 +461,6 @@ export default class App extends Component {
 
         // console.log("nodeList: ", tempNodeList);
         // console.log("relationList: ", tempRelationList);
-
-
         // console.log(resultArray);
       };
     });
@@ -492,15 +503,18 @@ export default class App extends Component {
 
                 {/* 图形区 */}
                 <div className="graphArea">
-                  <SettingDrawer />
+                  <SettingDrawer settings={this.state.settings} setSettings={this.setSettings} />
                   <GraphArea
                     setCurrentSelectNode={this.setCurrentSelectNode}
                     expandedTreeMenuKeys={this.state.expandedTreeMenuKeys}
                     setExpandedTreeMenuKeys={this.setExpandedTreeMenuKeys}
-                    data={this.state.currentSelectNode?.children}
+                    data={this.state.currentSelectNode?.children || []}
+                    title={this.state.currentSelectNode?.name}
                     allData={this.state.data}
                     nodeDataArray={this.state.nodeArray}
-                    linkDataArray={this.state.relationArray} />
+                    linkDataArray={this.state.relationArray}
+                    settings={this.state.settings}
+                  />
                 </div>
                 {/* end of 图形区 */}
 

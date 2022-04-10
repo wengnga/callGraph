@@ -40,7 +40,10 @@ export default class TreeGraph extends Component {
                         trigger: 'item',
                         triggerOn: 'mousemove',
                         enterable: true,//鼠标是否可进入提示框浮层中
-                        formatter: '{c}%', /* a（系列名称），b（数据项名称），c（数值）, d（百分比） */
+                        formatter: function (params) {
+                            const { data: { name, value, self, total } } = params;
+                            return `${name}: ${value}%<br/>${total}<br/>${self}`
+                        }
                     },
                     leaves: {
                         label: {
