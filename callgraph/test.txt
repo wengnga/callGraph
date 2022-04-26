@@ -1,0 +1,20 @@
+digraph G {
+"func1" [label = "func1\ntotal: 4.965% 7.522% 3.317%\nself: 1.029% 1.613% 0.357%"] 
+"func2" [label = "func2\ntotal: 8.909% 9.669% 6.385%\nself: 0.377% 0.665% 0.107%"] 
+"func3" [label = "func3\ntotal: 9.923% 10.829% 7.886%\nself: 0.021% 0.091% 0.000%"] 
+"func4" [label = "func4\ntotal: 21.797% 22.820% 20.668%\nself: 0.017% 0.089% 0.000%"] 
+"func5" [label = "func5\ntotal: 21.849% 22.934% 20.751%\nself: 0.001% 0.023% 0.000%"] 
+"func6" [label = "func6\ntotal: 29.092% 31.211% 26.903%\nself: 0.000% 0.017% 0.000%"] 
+"func7" [label = "func7\ntotal: 99.999% 100.000% 99.966%\nself: 0.000% 0.000% 0.000%"] 
+"func8" [label = "func8\ntotal: 99.999% 100.000% 99.966%\nself: 0.000% 0.000% 0.000%"] 
+"func1" -> "func2" [label = "4.965%"] 
+"func1" -> "func3" [label = "8.909%"] 
+"func1" -> "func4" [label = "4.965%"] 
+"func3" -> "func2" [label = "8.909%"] 
+"func3" -> "func5" [label = "4.965%"] 
+"func3" -> "func6" [label = "8.909%"] 
+"func5" -> "func7" [label = "8.909%"] 
+"func5" -> "func8" [label = "4.965%"] 
+"func2" -> "func5" [label = "8.909%"] 
+}
+

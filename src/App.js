@@ -10,13 +10,14 @@ import SettingDrawer from './Components/SettingDrawer';
 import { Scrollbars } from 'react-custom-scrollbars'
 import Sidebar from './Components/Sidebar';
 import { nanoid } from 'nanoid';
-
+import { vscodeExtention } from './config';
 
 // import { DiagramWrapper } from './Components/DiagramWrapper';
 import { UploadOutlined } from '@ant-design/icons';
 
 export default class App extends Component {
   state = {
+    webviewData: "",
     currentSelectNode: {},
     expandedTreeMenuKeys: [
       // "func-0-0-0"
@@ -286,13 +287,26 @@ export default class App extends Component {
       treeMapHeight: 80,
       treeMapVisibleMin: 100,
       childrenVisibleMin: 200,
-    }
-
+    },
   }
   allAdditionNodes = {};
   componentDidMount() {
+    window.addEventListener('message', event => {
+      const message = event.data;
+      if (JSON.stringify(message).includes("label")) {
+        // this.setState({ webviewData: JSON.stringify(message) });
+        this.parseData(message.data);
+      }
+    });
 
+    console.log("vscode: ", window.vscode);
+    window.vscode?.postMessage({
+      message: 'hello world vscode'
+    });
   }
+
+
+
   setSettings = (values) => {
     this.setState({
       settings: values
@@ -354,123 +368,137 @@ export default class App extends Component {
       reader.readAsText(file);
       reader.onload = () => {
         // console.log(reader.result)
-        const splitArray = reader.result.split(/\n/); // 按行读取
-        const resultArray = splitArray.slice(1, splitArray.length - 2);
-        let splitIndex = 0;
-        for (let i = 0; i < resultArray.length; i++) {
-          if (resultArray[i].indexOf("->") !== -1) {
-            splitIndex = i; // 函数名跟调用关系的分割index,从splitIndex开始就是调用关系
-            break;
-          }
-        }
-        const funcArray = resultArray.slice(0, splitIndex);
-        const callArray = resultArray.slice(splitIndex);
-        console.log("funcArray:", funcArray);
-        console.log("callArray:", callArray);
-
-        // 提取信息的正则
-        const funcReg = /(\s)*\"(.+?)\" \[label = \"(.+?)\\n(.+?)\\n(.+?)\"](\s)*/;
-        const callReg = /\"(.+?)\" -> \"(.+?)\" \[label = \"(.+?)\"/;
-        const tempNodeList = {};
-        const nodeArray = [];
-        funcArray.forEach(item => {
-          const info = funcReg.exec(item);
-          console.log(info[5].split(" "))
-          const totalAvg = parseFloat(info[4].split(" ")[1]);
-          const selfAvg = parseFloat(info[5].split(" ")[1]);
-          console.log("selfAvg: ", selfAvg, "   equals to 0: ", selfAvg === 0);
-          const newNode = {
-            name: info[3],
-            title: info[3],
-            "category": "step",
-            text: info[3],
-            key: info[2],
-            value: totalAvg,
-            total: info[4],
-            self: info[5],
-            children: selfAvg !== 0 ? [
-              //   {
-              //   name: "self",
-              //   title: "self",
-              //   "category": "step",
-              //   text: "self",
-              //   key: `${info[2]}_self_${nanoid()}`,
-              //   total: "",
-              //   self: "",
-              //   children: [],
-              //   value: selfAvg
-              // }
-            ] : [],
-            properties: [
-              {
-                name: info[4]
-              }
-            ],
-            methods: [
-              {
-                name: info[5]
-              }
-            ]
-          };
-          tempNodeList[newNode.key] = [newNode];
-          nodeArray.push(newNode);
-        })
-        console.log("nodeArray: ", JSON.stringify(nodeArray));
-
-        const tempRelationList = this.state.relationList;
-        const relationArray = [];
-        callArray.forEach(item => {
-          const info = callReg.exec(item);
-          const newRelation = {
-            from: info[1],
-            to: info[2],
-            label: info[3],
-            text: info[3],
-            relationship: "generalization"
-          };
-          console.log(parseFloat(info[3]));
-          relationArray.push(newRelation);
-          tempRelationList[`${newRelation.from}->${newRelation.to}`] = newRelation;
-          const toNodeList = tempNodeList[newRelation.to];
-          // console.log(`${newRelation.from}->${newRelation.to}`)
-          const list = tempNodeList[newRelation.from].length === 1 ? tempNodeList[newRelation.from] : tempNodeList[newRelation.from].slice(1);
-          list.forEach(item => {
-            const [copyNode, copyNodeDataList] = this.deepCopyAndChangeKey(toNodeList[toNodeList.length - 1]);
-            copyNode["value"] = parseFloat(newRelation.label);
-            item.children.push(copyNode);
-            // tempNodeList[newRelation.to] = [...tempNodeList[newRelation.to], copyNode];
-            tempNodeList[newRelation.to].push(copyNode);
-            copyNodeDataList.slice(1).forEach((copyItem) => {
-              tempNodeList[copyItem.originKey].push(this.allAdditionNodes[copyItem.key]);
-            })
-          });
-        })
-        const enter = Object.values(tempNodeList).filter(item => item.length === 1)[0][0];
-        console.log("enter:  ", enter)
-        console.log("nodeList: ", tempNodeList)
-        this.setState({
-          expandedTreeMenuKeys: [],
-          selectedTreeMenuKeys: [],
-          relationArray, nodeArray,
-          nodeList: tempNodeList,
-          relationList: tempRelationList,
-          currentSelectNode: enter,
-          data: enter
-        })
-        console.log("relationArray: ", JSON.stringify(relationArray));
-
-        // console.log("nodeList: ", tempNodeList);
-        // console.log("relationList: ", tempRelationList);
-        // console.log(resultArray);
+        const data = reader.result;
+        this.parseData(data);
       };
     });
 
+  }
+
+  parseData = data => {
+    console.log("##############################", JSON.stringify(this.state.webviewData) == JSON.stringify(data))
+    this.setState({ webviewData: JSON.stringify(data) })
+    console.log("@@@@@@@", JSON.stringify(data));
+    console.log(JSON.parse(JSON.stringify(data)));
+    console.log(data)
+
+    const splitArray = data.split(/\n/); // 按行读取
+    const resultArray = splitArray.slice(1, splitArray.length - 2);
+    let splitIndex = 0;
+    for (let i = 0; i < resultArray.length; i++) {
+      if (resultArray[i].indexOf("->") !== -1) {
+        splitIndex = i; // 函数名跟调用关系的分割index,从splitIndex开始就是调用关系
+        break;
+      }
+    }
+    const funcArray = resultArray.slice(0, splitIndex);
+    const callArray = resultArray.slice(splitIndex);
+    console.log("funcArray:", funcArray);
+    console.log("callArray:", callArray);
+
+    // 提取信息的正则
+    const funcReg = /(\s)*\"(.+?)\" \[label = \"(.+?)\\n(.+?)\\n(.+?)\"](\s)*/;
+    const callReg = /\"(.+?)\" -> \"(.+?)\" \[label = \"(.+?)\"/;
+    const tempNodeList = {};
+    const nodeArray = [];
+    funcArray.forEach(item => {
+      const info = funcReg.exec(item);
+      console.log(info[5].split(" "))
+      const totalAvg = parseFloat(info[4].split(" ")[1]);
+      const selfAvg = parseFloat(info[5].split(" ")[1]);
+      console.log("selfAvg: ", selfAvg, "   equals to 0: ", selfAvg === 0);
+      const newNode = {
+        name: info[3],
+        title: info[3],
+        "category": "step",
+        text: info[3],
+        key: info[2],
+        value: totalAvg,
+        total: info[4],
+        self: info[5],
+        children: selfAvg !== 0 ? [
+          //   {
+          //   name: "self",
+          //   title: "self",
+          //   "category": "step",
+          //   text: "self",
+          //   key: `${info[2]}_self_${nanoid()}`,
+          //   total: "",
+          //   self: "",
+          //   children: [],
+          //   value: selfAvg
+          // }
+        ] : [],
+        properties: [
+          {
+            name: info[4]
+          }
+        ],
+        methods: [
+          {
+            name: info[5]
+          }
+        ]
+      };
+      tempNodeList[newNode.key] = [newNode];
+      nodeArray.push(newNode);
+    })
+    console.log("nodeArray: ", JSON.stringify(nodeArray));
+
+    const tempRelationList = this.state.relationList;
+    const relationArray = [];
+    callArray.forEach(item => {
+      const info = callReg.exec(item);
+      const newRelation = {
+        from: info[1],
+        to: info[2],
+        label: info[3],
+        text: info[3],
+        relationship: "generalization"
+      };
+      console.log(parseFloat(info[3]));
+      relationArray.push(newRelation);
+      tempRelationList[`${newRelation.from}->${newRelation.to}`] = newRelation;
+      const toNodeList = tempNodeList[newRelation.to];
+      // console.log(`${newRelation.from}->${newRelation.to}`)
+      const list = tempNodeList[newRelation.from].length === 1 ? tempNodeList[newRelation.from] : tempNodeList[newRelation.from].slice(1);
+      list.forEach(item => {
+        const [copyNode, copyNodeDataList] = this.deepCopyAndChangeKey(toNodeList[toNodeList.length - 1]);
+        copyNode["value"] = parseFloat(newRelation.label);
+        item.children.push(copyNode);
+        // tempNodeList[newRelation.to] = [...tempNodeList[newRelation.to], copyNode];
+        tempNodeList[newRelation.to].push(copyNode);
+        copyNodeDataList.slice(1).forEach((copyItem) => {
+          tempNodeList[copyItem.originKey].push(this.allAdditionNodes[copyItem.key]);
+        })
+      });
+    })
+    const enter = Object.values(tempNodeList).filter(item => item.length === 1)[0][0];
+    console.log("enter:  ", enter)
+    console.log("nodeList: ", tempNodeList)
+    this.setState({
+      expandedTreeMenuKeys: [],
+      selectedTreeMenuKeys: [],
+      relationArray, nodeArray,
+      nodeList: tempNodeList,
+      relationList: tempRelationList,
+      currentSelectNode: enter,
+      data: enter
+    })
+    console.log("relationArray: ", JSON.stringify(relationArray));
+    // this.setState({ webviewData: JSON.stringify(relationArray) })
+
+    // console.log("nodeList: ", tempNodeList);
+    // console.log("relationList: ", tempRelationList);
+    // console.log(resultArray);
   }
   render() {
     return (
       <>
         <div className="App">
           <div className="content">
+            {/* webviewData：
+            {`${this.state.webviewData}1`} */}
             {/* 页面左边的树形菜单 */}
 
             <div className="treeMenu" >
