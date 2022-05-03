@@ -1,16 +1,20 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import { Tabs } from 'antd';
-import { ApartmentOutlined, PieChartOutlined, AppstoreOutlined, ClusterOutlined } from '@ant-design/icons';
+import { ApartmentOutlined, PieChartOutlined, AppstoreOutlined, ClusterOutlined, GroupOutlined } from '@ant-design/icons';
 import TreeGraph from '../TreeGraph';
 import PieGraph from '../PieGraph';
 import MapGraph from '../MapGraph';
 import DiagramWrapper from '../DiagramWrapper';
-
+import "./index.css"
 const { TabPane } = Tabs;
-export default class GraphArea extends Component {
+export default class GraphArea extends PureComponent {
     render() {
+        const { composeLeft, composeRight, leftRadio, rightRadio } = this.props.settings;
+        console.log("leftRadio:", leftRadio)
+        console.log("rightRadio:", rightRadio)
+
         return (
-            <Tabs defaultActiveKey="treeGraph" tabPosition="top" centered>
+            <Tabs defaultActiveKey="mapGraph" tabPosition="top" centered>
                 <TabPane
                     style={{ height: '800px' }}
                     tab={
@@ -35,7 +39,7 @@ export default class GraphArea extends Component {
                     <DiagramWrapper {...this.props} />
                 </TabPane>
                 <TabPane
-                    style={{ height: '800px' }}
+                    style={{ height: '1000px' }}
                     tab={
                         <span>
                             <PieChartOutlined />
@@ -57,6 +61,32 @@ export default class GraphArea extends Component {
                     key="mapGraph"
                 >
                     <MapGraph {...this.props} />
+                </TabPane>
+                <TabPane
+                    style={{ height: '1000px' }}
+                    tab={
+                        <span>
+                            <GroupOutlined />
+                            Compose
+                        </span>
+                    }
+                    key="compose"
+                >
+                    <div className='compose'>
+                        <div className='composeItem' style={{ flexGrow: String(leftRadio) }}>
+                            {composeLeft === 'pie' && <PieGraph {...this.props} />}
+                            {composeLeft === 'tree' && <TreeGraph {...this.props} />}
+                            {composeLeft === 'map' && <MapGraph {...this.props} />}
+                            {composeLeft === 'uml' && <DiagramWrapper {...this.props} />}
+                        </div>
+                        <div className='composeItem' style={{ flexGrow: String(rightRadio) }}>
+                            {composeRight === 'pie' && <PieGraph {...this.props} />}
+                            {composeRight === 'tree' && <TreeGraph {...this.props} />}
+                            {composeRight === 'map' && <MapGraph {...this.props} />}
+                            {composeRight === 'uml' && <DiagramWrapper {...this.props} />}                        </div>
+                    </div>
+
+
                 </TabPane>
             </Tabs>
         )

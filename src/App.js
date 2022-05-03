@@ -1,8 +1,8 @@
-import React, { Component } from 'react'
+import './App.css';
+import React, { PureComponent } from 'react'
 import { Upload, Button } from 'antd';
-import { SettingOutlined } from '@ant-design/icons';
+import { UpOutlined, DownOutlined } from '@ant-design/icons';
 import logo from './logo.svg';
-import './App.less';
 import TreeMenu from './Components/TreeMenu';
 import DataList from './Components/DataList';
 import GraphArea from './Components/GraphArea';
@@ -11,13 +11,13 @@ import { Scrollbars } from 'react-custom-scrollbars'
 import Sidebar from './Components/Sidebar';
 import { nanoid } from 'nanoid';
 import { vscodeExtention } from './config';
-
 // import { DiagramWrapper } from './Components/DiagramWrapper';
 import { UploadOutlined } from '@ant-design/icons';
-
-export default class App extends Component {
+import PubSub from 'pubsub-js'
+export default class App extends PureComponent {
   state = {
     webviewData: "",
+    showTableArea: true,
     currentSelectNode: {},
     expandedTreeMenuKeys: [
       // "func-0-0-0"
@@ -25,171 +25,6 @@ export default class App extends Component {
     selectedTreeMenuKeys: [
       // "func-0-0-0"
     ],
-    fakeData: { //title:string,name:string,key:string,value:num,total:string(100% 100% 100%),self:string((100% 100% 100%)),children:array
-      "name": "func0",
-      "title": "func0",
-      "key": "func-0-0-0",
-      "value": 100,
-      "total": "100%",
-      "self": "0%",
-      children: [
-        {
-          "name": "func1",
-          "title": "func1",
-          "key": "func1-0-0-0",
-          "value": 40,
-          "total": "45%",
-          "self": "0%",
-          children: [
-            {
-              "name": "func3",
-              "title": "func3",
-              "key": "func3-0-0-0-0",
-              "value": 20,
-              "total": "20%",
-              "self": "0%",
-              children: [
-                {
-                  "name": "func8",
-                  "title": "func8",
-                  "key": "func8-0-0-0-0-0",
-                  "value": 1,
-                  "total": "20%",
-                  "self": "0%",
-                },
-                {
-                  "name": "func9",
-                  "title": "func9",
-                  "key": "func9-0-0-0-0-0",
-                  "value": 19,
-                  "total": "20%",
-                  "self": "0%",
-                }
-              ]
-            }, {
-              "name": "func4",
-              "title": "func4",
-              "key": "func4-0-0-0-1",
-              "value": 25,
-              "total": "25%",
-              "self": "0%",
-              children: [
-                {
-                  "name": "func10",
-                  "title": "func10",
-                  "key": "func10-0-0-0-0-1",
-                  "value": 2,
-                  "total": "25%",
-                  "self": "0%",
-                },
-                {
-                  "name": "func11",
-                  "title": "func11",
-                  "key": "func11-0-0-0-0-1",
-                  "value": 5,
-                  "total": "25%",
-                  "self": "0%",
-                },
-                {
-                  "name": "func12",
-                  "title": "func12",
-                  "key": "func12-0-0-0-0-2",
-                  "value": 18,
-                  "total": "25%",
-                  "self": "0%",
-                  children: [
-                    {
-                      "name": "func13",
-                      "title": "func13",
-                      "key": "func13-0-0-0-0-0-0",
-                      "value": 5,
-                      "total": "25%",
-                      "self": "0%",
-                    },
-                    {
-                      "name": "func14",
-                      "title": "func14",
-                      "key": "func14-0-0-0-0-0-1",
-                      "value": 13,
-                      "total": "25%",
-                      "self": "0%",
-                      children: [
-                        {
-                          "name": "func15",
-                          "title": "func15",
-                          "key": "func15-0-0-0-0-0-0-0",
-                          "value": 4,
-                          "total": "25%",
-                          "self": "0%",
-                        },
-                        {
-                          "name": "func16",
-                          "title": "func16",
-                          "key": "func16-0-0-0-0-0-0-1",
-                          "value": 2,
-                          "total": "25%",
-                          "self": "0%",
-                        },
-                        {
-                          "name": "func17",
-                          "title": "func17",
-                          "key": "func17-0-0-0-0-0-0-2",
-                          "value": 7,
-                          "total": "25%",
-                          "self": "0%",
-                          children: [
-                            {
-                              "name": "func18",
-                              "title": "func18",
-                              "key": "func18-0-0-0-0-0-0-2",
-                              "value": 7,
-                              "total": "25%",
-                              "self": "0%",
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        { //title:string,name:string,key:string,value:num,total:string(100% 100% 100%),self:string((100% 100% 100%)),children:array
-          "name": "func2",
-          "title": "func2",
-          "key": "func2-0-0-1",
-          "value": 55,
-          "total": "55%",
-          "self": "0%",
-          children: [
-            { //title:string,name:string,key:string,value:num,total:string(100% 100% 100%),self:string((100% 100% 100%)),children:array
-              "name": "func5",
-              "title": "func5",
-              "key": "func5-0-0-1-0",
-              "value": 15,
-              "total": "15%",
-              "self": "0%"
-            }, { //title:string,name:string,key:string,value:num,total:string(100% 100% 100%),self:string((100% 100% 100%)),children:array
-              "name": "func6",
-              "title": "func6",
-              "key": "func6-0-0-1-1",
-              "value": 10,
-              "total": "10%",
-              "self": "0%"
-            }, { //title:string,name:string,key:string,value:num,total:string(100% 100% 100%),self:string((100% 100% 100%)),children:array
-              "name": "func7",
-              "title": "func7",
-              "key": "func7-0-0-1-2",
-              "value": 30,
-              "total": "30%",
-              "self": "0%"
-            }
-          ]
-        }
-      ]
-    },
 
     data: { //title:string,name:string,key:string,value:num,total:string(100% 100% 100%),self:string((100% 100% 100%)),children:array
 
@@ -282,6 +117,10 @@ export default class App extends Component {
     nodeList: {},
     relationList: {},
     settings: {
+      composeLeft: 'pie',
+      composeRight: 'map',
+      leftRadio: 1,
+      rightRadio: 1,
       leafDepth: 5,
       treeMapWidth: 80,
       treeMapHeight: 80,
@@ -314,9 +153,9 @@ export default class App extends Component {
   }
 
   setExpandedTreeMenuKeys = (expandedKeys) => {
-    console.log("expandedKey !!!!!!!!!!!!!!!!!:", expandedKeys)
+    console.log("expandedKey !!!!!!!!!!!!!!!!!:", Array.from(new Set(expandedKeys)))
     this.setState({
-      expandedTreeMenuKeys: expandedKeys
+      expandedTreeMenuKeys: Array.from(new Set(expandedKeys))
     })
   }
   setCurrentSelectNode = (selectedKeys, node) => {
@@ -475,7 +314,15 @@ export default class App extends Component {
     })
     const enter = Object.values(tempNodeList).filter(item => item.length === 1)[0][0];
     console.log("enter:  ", enter)
-    console.log("nodeList: ", tempNodeList)
+    console.log("nodeList: ", tempNodeList);
+
+    // 为了uml图点击该节点可以正常联动
+    nodeArray.forEach(node => {
+      const len = tempNodeList[node.key]?.length;
+      if (len >= 0) node.children = tempNodeList[node.key][len - 1].children;
+
+    })
+    PubSub.publish("ongoing", {});
     this.setState({
       expandedTreeMenuKeys: [],
       selectedTreeMenuKeys: [],
@@ -522,11 +369,25 @@ export default class App extends Component {
                 {/* <div className="getData"></div> */}
 
                 {/* 文字列表 */}
-                <div className="tableArea">
-                  <Scrollbars >
-                    <DataList dataSource={this.state.currentSelectNode?.children} ></DataList>
-                  </Scrollbars>
-                </div>
+
+                {
+                  this.state.showTableArea ? (
+                    <div className="tableArea">
+                      <Scrollbars >
+                        <DataList dataSource={this.state.currentSelectNode?.children} ></DataList>
+                      </Scrollbars>
+                    </div>
+                  ) : null
+                }
+                <Button onClick={() => {
+                  this.setState({
+                    showTableArea: !this.state.showTableArea
+                  })
+                }}
+                  type="text"
+                  icon={!this.state.showTableArea ? <DownOutlined /> : <UpOutlined />}
+                ></Button>
+
                 {/* end of 文字列表 */}
 
                 {/* 图形区 */}

@@ -1,11 +1,7 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import { Table } from 'antd';
-const postVscode = (record) => {
-    console.log(record);
-    window.vscode?.postMessage({
-        message: record
-    });
-}
+import { postVscode } from '../../utils/vscode';
+
 const columns = [
     {
         title: 'Function',
@@ -23,17 +19,18 @@ const columns = [
         title: 'self',
         dataIndex: 'self',
     },
-    {
-        title: 'Action',
-        key: 'operation',
-        fixed: 'right',
-        width: 100,
-        render: (record) =>
-            <a onClick={() => postVscode(record)}>click</a>,
-    },
+    window.vscodeExtention ?
+        {
+            title: 'Action',
+            key: 'operation',
+            fixed: 'right',
+            // width: 100,
+            render: (record) =>
+                <a onClick={() => postVscode(record)}>Go To Definition</a>,
+        } : {}
 ];
 
-export default class DataList extends Component {
+export default class DataList extends PureComponent {
     componentDidMount() {
         console.log("!!!!!!!!!!")
         console.log(this.props)

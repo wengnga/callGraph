@@ -40,8 +40,10 @@
     -->
   <script>
     console.log("hihihihihi")
-    const vscodeExtention = true;
-    window.vscode = vscodeExtention ? acquireVsCodeApi() : {};
+    window.vscodeExtention = true;
+    window.vscode = vscodeExtention ? acquireVsCodeApi() : {
+      postMessage: () => { }
+    };
   </script>
 </body>
 

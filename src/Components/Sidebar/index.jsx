@@ -11,7 +11,7 @@ class Sidebar extends Component {
     static defaultProps = {
         sizes: [
             {
-                width: 60,
+                width: 0,
                 shouldSnap: true
             },
             {
@@ -33,9 +33,9 @@ class Sidebar extends Component {
         isResizing: false,
         withTransition: false,
         resizeDelta: 0,
-        width: 1500,
+        width: 900,
         maxWidth: 2000,
-        minWidth: 0
+        minWidth: -500
     };
 
     _onResize = resizeDelta => {

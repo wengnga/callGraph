@@ -1,7 +1,7 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import ReactEcharts from 'echarts-for-react'
 import echartsTheme from '../../echartsTheme'
-export default class TreeGraph extends Component {
+export default class TreeGraph extends PureComponent {
     state = {
         options: {}
     }

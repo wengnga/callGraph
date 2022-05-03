@@ -1,11 +1,12 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import { Drawer, Form, Button, Col, Row, Input, Select, DatePicker, Space, Tabs, InputNumber, Slider, Tooltip } from 'antd';
-import { SettingOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { SettingOutlined, RedoOutlined } from '@ant-design/icons';
+import PubSub from 'pubsub-js'
 import './index.css';
 
 const { Option } = Select;
 const { TabPane } = Tabs;
-export default class SettingDrawer extends Component {
+export default class SettingDrawer extends PureComponent {
     state = { visible: false };
 
     showDrawer = () => {
@@ -29,12 +30,10 @@ export default class SettingDrawer extends Component {
     onFinishFailed = (errorInfo) => {
         console.log('Failed:', errorInfo);
     };
-
     render() {
         return (
             <>
                 <Button type="text" onClick={this.showDrawer} shape="circle" icon={<SettingOutlined />} />
-
                 <Drawer
                     title="Setting"
                     width={720}
@@ -61,6 +60,44 @@ export default class SettingDrawer extends Component {
                                 </Button>
                             </Form.Item>
                         </Space>
+                        <Form.Item
+                            name="composeLeft"
+                            label="Compose Left"
+                        >
+                            <Select style={{ width: 120 }}>
+                                <Option value="tree">Tree</Option>
+                                <Option value="uml">UML</Option>
+                                <Option value="pie" >
+                                    Pie
+                                </Option>
+                                <Option value="map">Map</Option>
+                            </Select>
+                        </Form.Item>
+                        <Form.Item
+                            name="composeRight"
+                            label="Compose Right"
+                        >
+                            <Select style={{ width: 120 }} >
+                                <Option value="tree">Tree</Option>
+                                <Option value="uml">UML</Option>
+                                <Option value="pie" >
+                                    Pie
+                                </Option>
+                                <Option value="map">Map</Option>
+                            </Select>
+                        </Form.Item>
+                        <Form.Item
+                            label="Compose left radio"
+                            name="leftRadio"
+                        >
+                            <InputNumber min={1} />
+                        </Form.Item>
+                        <Form.Item
+                            label="Compose right radio"
+                            name="rightRadio"
+                        >
+                            <InputNumber min={1} />
+                        </Form.Item>
                         <Tabs defaultActiveKey="1" centered>
                             <TabPane tab="Tree Graph" key="1">
                                 Setting of tree graph

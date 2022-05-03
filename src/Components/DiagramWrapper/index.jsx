@@ -1,7 +1,44 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import * as go from 'gojs';
 import { ReactDiagram } from 'gojs-react';
-export default class DiagramWrapper extends Component {
+import { postVscode } from '../../utils/vscode';
+import { Button } from 'antd';
+import { ReloadOutlined } from '@ant-design/icons';
+
+import PubSub from 'pubsub-js'
+
+let pubsubSwitch = null;
+let pubsubOngoing = null;
+let pubsubReset = null;
+export default class DiagramWrapper extends PureComponent {
+  state = {
+    myDiagram: null
+  }
+  umlSelectNode = (e) => {
+    console.log(e);
+    const { setCurrentSelectNode, setExpandedTreeMenuKeys, expandedTreeMenuKeys } = this.props;
+    if (e?.children?.length > 0) {
+      setCurrentSelectNode([e.key], e);
+      setExpandedTreeMenuKeys([...expandedTreeMenuKeys, e.key])
+    }
+  }
+  componentDidMount() {
+    console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%", this.props.nodeDataArray);
+    pubsubSwitch = PubSub.subscribe("switchFunc", (msg, data) => {
+      this.highLightNode(data);
+    })
+    pubsubOngoing = PubSub.subscribe("ongoing", (msg, data) => {
+      this.state.myDiagram.layout.isOngoing = true;
+    })
+    pubsubReset = PubSub.subscribe("resetUML", () => {
+      this.state.myDiagram.layoutDiagram(true);
+    })
+  }
+  componentWillUnmount() {
+    PubSub.unsubscribe(pubsubSwitch);
+    PubSub.unsubscribe(pubsubOngoing);
+    PubSub.unsubscribe(pubsubReset);
+  }
   initDiagram = () => {
     console.log("initDiagram @@@@@@@@@@@@@@@@@@@@@@");
     const $ = go.GraphObject.make;
@@ -25,7 +62,7 @@ export default class DiagramWrapper extends Component {
               // nodes not connected by "generalization" links are laid out horizontally
               arrangement: go.TreeLayout.ArrangementHorizontal,
               isInitial: true,
-              // isOngoing: false,
+              isOngoing: true,
             })
 
           // layout: $(go.ForceDirectedLayout, {
@@ -102,12 +139,17 @@ export default class DiagramWrapper extends Component {
           new go.Binding("text", "type").makeTwoWay())
       );
     // define a simple Node template
+    const that = this;
     diagram.nodeTemplate =
       $(go.Node, "Auto",
         {
           click: function (e, node) {
             // highlight all Links and Nodes coming out of a given Node
+
             var diagram = node.diagram;
+            diagram.layout.isOngoing = false;
+            that.umlSelectNode(node.jb)
+            console.log(node)
             diagram.startTransaction("highlight");
             // remove any previous highlighting
             diagram.clearHighlighteds();
@@ -122,6 +164,10 @@ export default class DiagramWrapper extends Component {
             // node.findLinksInto().each(function (n) { n.isHighlighted = true; });
 
             diagram.commitTransaction("highlight");
+          },
+          doubleClick: function (e, node) {
+            console.log("dbclick");
+            postVscode(node.jb);
           },
           locationSpot: go.Spot.Center,
           fromSpot: go.Spot.AllSides,
@@ -214,6 +260,9 @@ export default class DiagramWrapper extends Component {
         $(go.TextBlock, { stroke: "white" },  // this is a Link label
           new go.Binding("text", "text"))
       );
+    this.setState({
+      myDiagram: diagram
+    })
     return diagram;
   }
 
@@ -223,16 +272,53 @@ export default class DiagramWrapper extends Component {
    */
   handleModelChange = (changes) => {
     alert('GoJS model changed!');
+    this.state.myDiagram.layout.isOngoing = true;
+    console.log(changes);
+  }
+  // shouldComponentUpdate(nextProps, nextState) {
+  //   return nextProps.nodeDataArray !== this.props.nodeDataArray || nextProps.linkDataArray !== this.props.linkDataArray
+  // }
+  highLightNode = (data) => {
+    const diagram = this.state.myDiagram;
+    const keyArray = data?.key?.split("_");
+    const key = keyArray?.length > 0 ? keyArray[0] : null;
+    const node = diagram.findNodeForKey(key);
+    if (node) {
+      diagram.select(node);
+      console.log(node);
+      diagram.startTransaction("highlight");
+      // remove any previous highlighting
+      diagram.clearHighlighteds();
+      // for each Link coming out of the Node, set Link.isHighlighted
+      node.findLinksOutOf().each(function (l) { l.isHighlighted = true; });
+      // for each Node destination for the Node, set Node.isHighlighted
+      node.findNodesOutOf().each(function (n) { n.isHighlighted = true; });
+      diagram.commitTransaction("highlight");
+    }
+
   }
   render() {
     return (
-      <ReactDiagram
-        initDiagram={this.initDiagram}
-        divClassName='diagram-component'
-        nodeDataArray={this.props.nodeDataArray}
-        linkDataArray={this.props.linkDataArray}
-        onModelChange={this.handleModelChange}
-      />
+      <>
+        <Button
+          shape="circle"
+          icon={<ReloadOutlined />}
+          onClick={
+            () => {
+              this.state.myDiagram.layoutDiagram(true);
+              // PubSub.publish("resetUML", {});
+            }
+
+          }></Button>
+        <ReactDiagram
+          initDiagram={this.initDiagram}
+          divClassName='diagram-component'
+          nodeDataArray={this.props.nodeDataArray}
+          linkDataArray={this.props.linkDataArray}
+          onModelChange={this.handleModelChange}
+        />
+      </>
+
     )
   }
 }

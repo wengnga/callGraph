@@ -1,7 +1,11 @@
 import React, { Component } from 'react'
 import ReactEcharts from 'echarts-for-react';
 import echartsTheme from '../../echartsTheme';
-import axios from 'axios'
+import { postVscode } from '../../utils/vscode';
+import PubSub from 'pubsub-js'
+
+let timer = null;
+const intervalTime = 200;
 export default class MapGraph extends Component {
     constructor(props) {
         super(props);
@@ -9,16 +13,31 @@ export default class MapGraph extends Component {
 
         };
         this.onEvents = {
-            'click': this.switchToAnthorPie.bind(this), //配置点击事件处理程序
+            'click': this.switchToAnthorPie.bind(this), // 配置点击事件处理程序,
+            'dblclick': this.goToDefinition.bind(this),
         }
     }
     switchToAnthorPie(e) {
-        console.log(e);
-        // const { setCurrentSelectNode, setExpandedTreeMenuKeys, expandedTreeMenuKeys } = this.props;
-        // if (e.data.children?.length > 0) { // 要有数据切换饼图
-        //     setCurrentSelectNode([e.data.key], e.data);
-        //     setExpandedTreeMenuKeys([...expandedTreeMenuKeys, e.data.key])
-        // }
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            console.log(e);
+            PubSub.publish("switchFunc", e.data);
+            const { setCurrentSelectNode, setExpandedTreeMenuKeys, expandedTreeMenuKeys } = this.props;
+            if (e.data.children?.length > 0) { // 要有数据切换饼图
+                setCurrentSelectNode([e.data.key], e.data);
+                setExpandedTreeMenuKeys([...expandedTreeMenuKeys, e.data.key])
+            }
+        }, intervalTime)
+
+    }
+    goToDefinition(e) {
+        console.log("double");
+        clearTimeout(timer);
+        postVscode(e.data);
+    }
+    shouldComponentUpdate(nextProps, nextState) {
+        // console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", data);
+        return nextProps.allData !== this.props.allData || nextProps.settings !== this.props.settings
     }
     /*
     块状映射图的配置对象
@@ -33,13 +52,17 @@ export default class MapGraph extends Component {
             },
             tooltip: {
                 formatter: function (params) {
-                    const { data: { name, value, self, total } } = params;
+                    let { data: { name, value, self, total } } = params;
+                    if (!total && !self) {
+                        total = tempData.total;
+                        self = tempData.self;
+                    }
                     return `${name}: ${value}%<br/>${total}<br/>${self}`
                 }
             },
             series: [
                 {
-                    name: 'func',
+                    name: this.props.allData?.name,
                     type: 'treemap',
                     width: `${treeMapWidth}%`,
                     height: `${treeMapHeight}%`,
@@ -780,6 +803,7 @@ export default class MapGraph extends Component {
     };
 
     componentDidMount() {
+        console.log("allData:", this.props.allData)
         // this.setState({
         //     options: this.getOption(this.props.allData)
         // })

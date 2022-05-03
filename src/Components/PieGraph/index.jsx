@@ -1,15 +1,21 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import ReactEcharts from 'echarts-for-react';
 import echartsTheme from '../../echartsTheme';
+import { postVscode } from '../../utils/vscode';
 import { nanoid } from 'nanoid';
-export default class PieGraph extends Component {
+import PubSub from 'pubsub-js'
+
+let timer = null;
+const intervalTime = 200;
+export default class PieGraph extends PureComponent {
     constructor(props) {
         super(props);
         this.state = {
 
         };
         this.onEvents = {
-            'click': this.switchToAnthorPie.bind(this), //配置点击事件处理程序
+            'click': this.switchToAnthorPie.bind(this), // 配置点击事件处理程序
+            'dblclick': this.goToDefinition.bind(this),
         }
     }
     componentDidMount() {
@@ -93,14 +99,23 @@ export default class PieGraph extends Component {
 
 
     switchToAnthorPie(e) {
-        console.log(e);
-        const { setCurrentSelectNode, setExpandedTreeMenuKeys, expandedTreeMenuKeys } = this.props;
-        if (e.data.children?.length > 0) { // 要有数据切换饼图
-            setCurrentSelectNode([e.data.key], e.data);
-            setExpandedTreeMenuKeys([...expandedTreeMenuKeys, e.data.key])
-        }
-    }
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            console.log(e);
+            PubSub.publish("switchFunc", e.data);
+            const { setCurrentSelectNode, setExpandedTreeMenuKeys, expandedTreeMenuKeys } = this.props;
+            if (e.data.children?.length > 0) { // 要有数据切换饼图
+                setCurrentSelectNode([e.data.key], e.data);
+                setExpandedTreeMenuKeys([...expandedTreeMenuKeys, e.data.key])
+            }
+        }, intervalTime)
 
+    }
+    goToDefinition(e) {
+        console.log("double");
+        clearTimeout(timer);
+        postVscode(e.data);
+    }
     render() {
         return (
             <ReactEcharts option={this.getOption()} ref={node => { this.echartspie = node }} onEvents={this.onEvents}
