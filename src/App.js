@@ -1,4 +1,6 @@
 import './App.css';
+import './custom-light.css';    // 引入custom-light.css 和 custom-dark.css
+import './custom-dark.css';    // 引入custom-light.css 和 custom-dark.css
 import React, { PureComponent } from 'react'
 import { Upload, Button } from 'antd';
 import { UpOutlined, DownOutlined } from '@ant-design/icons';
@@ -14,6 +16,8 @@ import { vscodeExtention } from './config';
 // import { DiagramWrapper } from './Components/DiagramWrapper';
 import { UploadOutlined } from '@ant-design/icons';
 import PubSub from 'pubsub-js'
+import { ConfigProvider } from "antd";
+
 export default class App extends PureComponent {
   state = {
     webviewData: "",
@@ -117,6 +121,7 @@ export default class App extends PureComponent {
     nodeList: {},
     relationList: {},
     settings: {
+      themeDark: true,
       composeLeft: 'pie',
       composeRight: 'map',
       leftRadio: 1,
@@ -127,6 +132,7 @@ export default class App extends PureComponent {
       treeMapVisibleMin: 100,
       childrenVisibleMin: 200,
     },
+    themeColor: "custom-dark",
   }
   allAdditionNodes = {};
   componentDidMount() {
@@ -148,8 +154,9 @@ export default class App extends PureComponent {
 
   setSettings = (values) => {
     this.setState({
-      settings: values
-    })
+      settings: values,
+      themeColor: values.themeDark === false ? 'custom-light' : 'custom-dark',
+    });
   }
 
   setExpandedTreeMenuKeys = (expandedKeys) => {
@@ -340,81 +347,85 @@ export default class App extends PureComponent {
     // console.log(resultArray);
   }
   render() {
+    const { themeColor } = this.state;
     return (
       <>
-        <div className="App">
-          <div className="content">
-            {/* webviewData：
+        <ConfigProvider prefixCls={themeColor}>
+          <div className={`App ${themeColor}`} style={{ backgroundColor: themeColor === 'custom-light' ? '#fff' : '#1e1e1e' }}>
+            <div className="content">
+              {/* webviewData：
             {`${this.state.webviewData}1`} */}
-            {/* 页面左边的树形菜单 */}
+              {/* 页面左边的树形菜单 */}
 
-            <div className="treeMenu" >
-              <Upload listType='text' beforeUpload={this.beforeUpload}>
-                <Button icon={<UploadOutlined />}>Upload</Button>
-              </Upload>
-              <Scrollbars >
-                <TreeMenu setCurrentSelectNode={this.setCurrentSelectNode} expandedTreeMenuKeys={this.state.expandedTreeMenuKeys} setExpandedTreeMenuKeys={this.setExpandedTreeMenuKeys} treeMenuData={[this.state.data]} selectedKeys={this.state.selectedTreeMenuKeys}></TreeMenu>
-              </Scrollbars>
-              {/* <div className='resizeborder'
+              <div className="treeMenu" >
+                <Upload listType='text' beforeUpload={this.beforeUpload}>
+                  <Button icon={<UploadOutlined />}>Upload</Button>
+                </Upload>
+                <Scrollbars >
+                  <TreeMenu setCurrentSelectNode={this.setCurrentSelectNode} expandedTreeMenuKeys={this.state.expandedTreeMenuKeys} setExpandedTreeMenuKeys={this.setExpandedTreeMenuKeys} treeMenuData={[this.state.data]} selectedKeys={this.state.selectedTreeMenuKeys}></TreeMenu>
+                </Scrollbars>
+                {/* <div className='resizeborder'
                 draggable="true"
                 onDragStart={this.handleTreeMenuDragStart}
                 onDragOver={this.handleTreeMenuDragOver}
                 onDragEnd={this.handleTreeMenuDragEnd}
               ></div> */}
-            </div>
-            {/* end of 页面左边的树形菜单 */}
-            <Sidebar>
-              {/* 页面展示数据的部分，包括文字列表和图形区 起始 */}
-              <div className="displayArea">
-                {/* <div className="getData"></div> */}
-
-                {/* 文字列表 */}
-
-                {
-                  this.state.showTableArea ? (
-                    <div className="tableArea">
-                      <Scrollbars >
-                        <DataList dataSource={this.state.currentSelectNode?.children} ></DataList>
-                      </Scrollbars>
-                    </div>
-                  ) : null
-                }
-                <Button onClick={() => {
-                  this.setState({
-                    showTableArea: !this.state.showTableArea
-                  })
-                }}
-                  type="text"
-                  icon={!this.state.showTableArea ? <DownOutlined /> : <UpOutlined />}
-                ></Button>
-
-                {/* end of 文字列表 */}
-
-                {/* 图形区 */}
-                <div className="graphArea">
-                  <SettingDrawer settings={this.state.settings} setSettings={this.setSettings} />
-                  <GraphArea
-                    setCurrentSelectNode={this.setCurrentSelectNode}
-                    expandedTreeMenuKeys={this.state.expandedTreeMenuKeys}
-                    setExpandedTreeMenuKeys={this.setExpandedTreeMenuKeys}
-                    data={this.state.currentSelectNode?.children || []}
-                    title={this.state.currentSelectNode?.name}
-                    allData={this.state.data}
-                    nodeDataArray={this.state.nodeArray}
-                    linkDataArray={this.state.relationArray}
-                    settings={this.state.settings}
-                  />
-                </div>
-                {/* end of 图形区 */}
-
               </div>
-              {/* end of 页面展示数据的部分，包括文字列表和图形区 */}
-            </Sidebar>
+              {/* end of 页面左边的树形菜单 */}
+              <Sidebar>
+                {/* 页面展示数据的部分，包括文字列表和图形区 起始 */}
+                <div className="displayArea">
+                  {/* <div className="getData"></div> */}
+
+                  {/* 文字列表 */}
+
+                  {
+                    this.state.showTableArea ? (
+                      <div className="tableArea">
+                        <Scrollbars >
+                          <DataList dataSource={this.state.currentSelectNode?.children} ></DataList>
+                        </Scrollbars>
+                      </div>
+                    ) : null
+                  }
+                  <Button onClick={() => {
+                    this.setState({
+                      showTableArea: !this.state.showTableArea
+                    })
+                  }}
+                    type="text"
+                    icon={!this.state.showTableArea ? <DownOutlined /> : <UpOutlined />}
+                  ></Button>
+
+                  {/* end of 文字列表 */}
+
+                  {/* 图形区 */}
+                  <div className="graphArea">
+                    <SettingDrawer settings={this.state.settings} setSettings={this.setSettings} />
+                    <GraphArea
+                      setCurrentSelectNode={this.setCurrentSelectNode}
+                      expandedTreeMenuKeys={this.state.expandedTreeMenuKeys}
+                      setExpandedTreeMenuKeys={this.setExpandedTreeMenuKeys}
+                      data={this.state.currentSelectNode?.children || []}
+                      title={this.state.currentSelectNode?.name}
+                      allData={this.state.data}
+                      nodeDataArray={this.state.nodeArray}
+                      linkDataArray={this.state.relationArray}
+                      settings={this.state.settings}
+                      themeColor={this.state.themeColor}
+                    />
+                  </div>
+                  {/* end of 图形区 */}
+
+                </div>
+                {/* end of 页面展示数据的部分，包括文字列表和图形区 */}
+              </Sidebar>
+
+            </div>
+
 
           </div>
-
-
-        </div>
+        </ConfigProvider>
       </>
     )
   }

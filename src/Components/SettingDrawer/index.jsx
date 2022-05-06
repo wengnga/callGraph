@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react'
-import { Drawer, Form, Button, Col, Row, Input, Select, DatePicker, Space, Tabs, InputNumber, Slider, Tooltip } from 'antd';
+import { Drawer, Form, Button, Col, Row, Input, Select, DatePicker, Space, Tabs, InputNumber, Slider, Tooltip, Switch } from 'antd';
 import { SettingOutlined, RedoOutlined } from '@ant-design/icons';
 import PubSub from 'pubsub-js'
 import './index.css';
@@ -60,6 +60,12 @@ export default class SettingDrawer extends PureComponent {
                                 </Button>
                             </Form.Item>
                         </Space>
+                        <Form.Item
+                            name="themeDark"
+                            label="theme"
+                        >
+                            <Switch checkedChildren="dark" unCheckedChildren="light" defaultChecked />
+                        </Form.Item>
                         <Form.Item
                             name="composeLeft"
                             label="Compose Left"

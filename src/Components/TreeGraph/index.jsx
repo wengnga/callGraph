@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react'
 import ReactEcharts from 'echarts-for-react'
 import echartsTheme from '../../echartsTheme'
+import echartsThemeLight from '../../echartsThemeLight'
 export default class TreeGraph extends PureComponent {
     state = {
         options: {}
@@ -34,7 +35,7 @@ export default class TreeGraph extends PureComponent {
                         verticalAlign: 'middle',
                         align: 'right',
                         fontSize: 9,
-                        color: "white",
+                        color: this.props.themeColor === 'custom-light' ? 'black' : "white",
                     },
                     tooltip: {
                         trigger: 'item',
@@ -77,8 +78,10 @@ export default class TreeGraph extends PureComponent {
     render() {
         return (
             <ReactEcharts option={this.getOptions()} ref={node => { this.echartspie = node }} onEvents={this.onEvents}
-                theme={echartsTheme}
-                style={{ width: '100%', height: '100%', backgroundColor: '#1e1e1e' }}
+                theme={echartsThemeLight}
+                style={{
+                    width: '100%', height: '100%', backgroundColor: this.props.themeColor === 'custom-light' ? '#fff' : '#1e1e1e'
+                }}
             />
         )
     }
