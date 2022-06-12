@@ -18,7 +18,8 @@ function getHTML(context, templatePath) {
 	return html;
 }
 function getVscodePath(str) {
-	return str.replace(/\//g, "\\\\");
+	// return str.replace(/\//g, "\\\\");
+	return str;
 }
 function activate(context) {
 	let mapFilePath = '';
