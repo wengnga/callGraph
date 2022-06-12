@@ -77,7 +77,6 @@ class Sidebar extends Component {
 
     _getProgressWidth = resizeDelta => {
         const progressWidth = this.state.width - resizeDelta;
-        console.log("progressWidth: ", progressWidth);
         // TODO handle differently
         return (progressWidth >= this.state.maxWidth)
             ? this.state.maxWidth

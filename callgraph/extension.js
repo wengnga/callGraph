@@ -3,22 +3,17 @@
 const vscode = require('vscode');
 const fs = require('fs');
 const path = require('path');
-const util = require('./util');
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 
-/**
- * @param {vscode.ExtensionContext} context
- */
-function getWebViewContent(context, templatePath) {
-	const resourcePath = util.getExtensionFileAbsolutePath(context, templatePath);
+function getHTML(context, templatePath) {
+	// 网页入口文件的绝对路径
+	const resourcePath = path.join(context.extensionPath, templatePath);
+	// 网页入口文件所处的目录
 	const dirPath = path.dirname(resourcePath);
-	console.log(resourcePath)
-	let html = fs.readFileSync(resourcePath, 'utf-8');
-	// console.log("html: ", html)
-	// vscode不支持直接加载本地资源，需要替换成其专有路径格式，这里只是简单的将样式和JS的路径替换
-	html = html.replace(/(<link.+?href="|<script.+?src="|<img.+?src=")(.+?)"/g, (m, $1, $2) => {
-		return $1 + vscode.Uri.file(path.resolve(dirPath, $2)).with({ scheme: 'vscode-resource' }).toString() + '"';
+	// 使用正则表达式替换css和JS等本地资源的路径为符合vscode-resource:协议的格式
+	let html = fs.readFileSync(resourcePath, 'utf-8').replace(/(<link.+?href="|<script.+?src="|<img.+?src=")(.+?)"/g, (m, $1, $2) => {
+		return `${$1}${vscode.Uri.file(path.resolve(dirPath, $2)).with({ scheme: 'vscode-resource' }).toString()}"`;
 	});
 	return html;
 }
@@ -26,85 +21,95 @@ function getVscodePath(str) {
 	return str.replace(/\//g, "\\\\");
 }
 function activate(context) {
-
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "callgraph" is now active!');
-
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with  registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('callgraph.helloWorld', function (info) {
+	let mapFilePath = '';
+	let disposable = vscode.commands.registerCommand('callgraph.showWebview', function (info) {
 		// The code you place here will be executed every time your command is executed
-
-		// Display a message box to the user
-		// vscode.window.showInformationMessage('Hello World from CallGraph!');
-		// 1.创建并显示Webview
-		const uri = vscode.window.activeTextEditor.document.uri;
-		console.log("uri: ", uri);
+		// 创建并显示Webview
 		const panel = vscode.window.createWebviewPanel(
-			// 该webview的标识，任意字符串
+			// webview标识
 			'callgraph',
-			// webview面板的标题，会展示给用户
+			// webview面板标题
 			'callgraph',
 			// webview面板所在的分栏
 			vscode.ViewColumn.One,
 			// 其它webview选项
 			{
 				enableScripts: true, // 启用JS，默认禁用
-				retainContextWhenHidden: true, // webview被隐藏时保持状态，避免被重置
+				retainContextWhenHidden: true, // webview隐藏时保持状态，避免被重置
 			}
-
 		);
+		const panelPointer = panel;
 		panel.webview.onDidReceiveMessage(message => {
 			console.log('插件收到的消息：', message);
-			const funcName = message?.message?.name;
-			if (funcName) {
-				const mapArray = fs.readFileSync("C:/Users/twnan/OneDrive/桌面/GraduationProject/swlu_map.txt", 'utf-8')?.split("\n");
-				const nameIndex = mapArray.findIndex((item) => item === funcName);
-				if (nameIndex >= 0) {
-					const targetIndex = nameIndex + 1;
-					const targetArray = mapArray[targetIndex].split(":");
-					console.log(targetArray);
-					const lineStr = targetArray[targetArray.length - 1];
-					const path = mapArray[targetIndex].slice(0, mapArray[targetIndex].length - 1 - lineStr.length);
-					const destPath = getVscodePath(path);
-					if (!fs.existsSync(destPath)) {
-						vscode.window.showErrorMessage(`无法读取档案${path}`);
-						return;
+			switch (message?.message?.type) {
+				case 'getSettings':
+					const settings = context.globalState.get('settings');
+					console.log(settings);
+					console.log('panelPointer', panelPointer)
+					panelPointer.webview.postMessage({
+						data: {
+							type: 'getSettings',
+							settings
+						}
+					});
+					break;
+				case 'setSettings':
+					context.globalState.update('settings', message?.message?.settings);
+					break;
+				default:
+					const funcName = message?.message?.name;
+					if (funcName) {
+						console.log("mapFilePath: ", mapFilePath);
+						if (!fs.existsSync(mapFilePath)) {
+							vscode.window.showErrorMessage(`无法读取档案${mapFilePath}`);
+							return;
+						}
+						const mapArray = fs.readFileSync(mapFilePath, 'utf-8')?.split("\n");
+						const nameIndex = mapArray.findIndex((item) => item === funcName);
+						if (nameIndex >= 0) {
+							const targetIndex = nameIndex + 1;
+							const targetArray = mapArray[targetIndex].split(":");
+							console.log(targetArray);
+							const lineStr = targetArray[targetArray.length - 1];
+							const path = mapArray[targetIndex].slice(0, mapArray[targetIndex].length - 1 - lineStr.length);
+							const destPath = getVscodePath(path);
+							if (!fs.existsSync(destPath)) {
+								vscode.window.showErrorMessage(`无法读取档案${path}`);
+								return;
+							}
+							console.log(destPath);
+							console.log(lineStr)
+							vscode.workspace.openTextDocument(destPath).then((doc) => {
+								// vscode.window.showInformationMessage('Hello World！');
+								console.log("doc:", doc);
+								const line = Number(lineStr) - 1;
+								const options = {
+									selection: new vscode.Range(new vscode.Position(line, 0), new vscode.Position(line, 0)),
+									viewColumn: vscode.ViewColumn.Two
+								};
+								vscode.window.showTextDocument(doc, options);
+							})
+						} else {
+							vscode.window.showErrorMessage(`映射文件swlu_map.txt中找不到${funcName}函数`);
+						}
+
 					}
-					console.log(destPath);
-					console.log(lineStr)
-					vscode.workspace.openTextDocument(destPath).then((doc) => {
-						// vscode.window.showInformationMessage('Hello World！');
-						console.log("doc:", doc);
-						const line = Number(lineStr) - 1;
-						const options = {
-							selection: new vscode.Range(new vscode.Position(line, 0), new vscode.Position(line, 0)),
-							viewColumn: vscode.ViewColumn.Two
-						};
-						vscode.window.showTextDocument(doc, options);
-					})
-				}
-
+					break;
 			}
-
 		}, undefined, context.subscriptions);
-
-		panel.webview.html = getWebViewContent(context, 'src/build/index.html');
+		panel.webview.html = getHTML(context, 'src/build/index.html');
 		const dataPath = getVscodePath(info.path.slice(1));
-
+		console.log("dataPath: ", getVscodePath(path.dirname(info.path.slice(1))))
+		mapFilePath = getVscodePath(`${path.dirname(info.path.slice(1))}/swlu_map.txt`);
 		let data = fs.readFileSync(dataPath, 'utf-8');
 		setTimeout(() => {
-			panel.webview.postMessage({ data });
+			panelPointer.webview.postMessage({ data });
 			console.log(data)
-		}, 2000)
+		}, 2500)
 
 	});
-
 	context.subscriptions.push(disposable);
 }
-
 // this method is called when your extension is deactivated
 function deactivate() { }
 

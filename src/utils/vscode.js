@@ -1,5 +1,5 @@
 export const postVscode = (data) => {
-    console.log(data);
+    console.log(">>>>>>>>>>>> ", data);
     window.vscode?.postMessage({
         message: data
     });

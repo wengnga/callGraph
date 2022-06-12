@@ -5,17 +5,18 @@ import { postVscode } from '../../utils/vscode';
 import { Button } from 'antd';
 import { ReloadOutlined } from '@ant-design/icons';
 
-import PubSub from 'pubsub-js'
-
+import PubSub from 'pubsub-js';
+import './index.css';
 let pubsubSwitch = null;
 let pubsubOngoing = null;
 let pubsubReset = null;
+let pubsubThemeChange = null;
 export default class DiagramWrapper extends PureComponent {
   state = {
     myDiagram: null
   }
+  myRef = React.createRef();
   umlSelectNode = (e) => {
-    console.log(e);
     const { setCurrentSelectNode, setExpandedTreeMenuKeys, expandedTreeMenuKeys } = this.props;
     if (e?.children?.length > 0) {
       setCurrentSelectNode([e.key], e);
@@ -23,8 +24,6 @@ export default class DiagramWrapper extends PureComponent {
     }
   }
   componentDidMount() {
-    console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%", this.props.nodeDataArray);
-    console.log(this.props)
     pubsubSwitch = PubSub.subscribe("switchFunc", (msg, data) => {
       this.highLightNode(data);
     })
@@ -35,16 +34,71 @@ export default class DiagramWrapper extends PureComponent {
     pubsubReset = PubSub.subscribe("resetUML", () => {
       this.state.myDiagram.layoutDiagram(true);
     })
+    pubsubThemeChange = PubSub.subscribe('themeChange', () => {
+      console.log("############################################### themeColor: ", this.props.themeColor);
+      this.changeBackgroundColor();
+      const diagram = this.state.myDiagram;
+      const $ = go.GraphObject.make;
+      const that = this;
+      diagram.linkTemplateMap.set('',
+        $(go.Link,
+          {
+            routing: go.Link.Orthogonal,
+            corner: 0,
+            layerName: 'Background'//Do not cross in front of any nodes
+          },
+          new go.Binding("isLayoutPositioned", "relationship", this.convertIsTreeLink),
+          $(go.Shape,// the Shape.stroke color depends on whether Link.isHighlighted is true
+            new go.Binding("stroke", "isHighlighted", function (h) { return h ? "red" : "grey" })
+              .ofObject(),
+            // the Shape.strokeWidth depends on whether Link.isHighlighted is true
+            new go.Binding("strokeWidth", "isHighlighted", function (h) { return h ? 5 : 1; })
+              .ofObject()),
+          $(go.Shape, { scale: 1.3, fill: "white" },
+            new go.Binding("fromArrow", "relationship", this.convertFromArrow)),
+          $(go.Shape, { scale: 1.3, fill: "white" },
+            new go.Binding("toArrow", "relationship", this.convertToArrow), new go.Binding("fill", "isHighlighted", function (h) { return h ? "red" : "white"; })
+              .ofObject()),
+          $(go.TextBlock, { stroke: that.props.themeColor === 'custom-light' ? "black" : 'white' },  // this is a Link label
+            new go.Binding("text", "text"))
+        ));
+      diagram.rebuildParts();
+    })
   }
   componentWillUnmount() {
     PubSub.unsubscribe(pubsubSwitch);
     PubSub.unsubscribe(pubsubOngoing);
     PubSub.unsubscribe(pubsubReset);
   }
+  // gojs似乎没有办法用props判断themeColor然后改变背景色，只能修改真实dom
+  changeBackgroundColor = () => {
+    const divLight = document.querySelector('.diagram-component-light');
+    const divDark = document.querySelector('.diagram-component-dark');
+    if (divLight?.className) {
+      divLight.className = `diagram-component-${this.props.themeColor === 'custom-light' ? 'light' : 'dark'}`
+    }
+    if (divDark?.classList) {
+      divDark.className = `diagram-component-${this.props.themeColor === 'custom-light' ? 'light' : 'dark'}`
+    }
+  }
+  convertIsTreeLink(r) {
+    return r === "generalization";
+  }
+  convertFromArrow(r) {
+    switch (r) {
+      case "generalization": return "";
+      default: return "";
+    }
+  }
+  convertToArrow(r) {
+    switch (r) {
+      case "generalization": return "Triangle";
+      case "aggregation": return "StretchedDiamond";
+      default: return "";
+    }
+  }
   initDiagram = () => {
     const that = this;
-    console.log("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%", that.props)
-
     console.log("initDiagram @@@@@@@@@@@@@@@@@@@@@@");
     const $ = go.GraphObject.make;
     const diagram =
@@ -170,14 +224,13 @@ export default class DiagramWrapper extends PureComponent {
             diagram.commitTransaction("highlight");
           },
           doubleClick: function (e, node) {
-            console.log("dbclick");
             postVscode(node.jb);
           },
           locationSpot: go.Spot.Center,
           fromSpot: go.Spot.AllSides,
           toSpot: go.Spot.AllSides,
         },
-        $(go.Shape, "RoundedRectangle", { fill: that.props.themeColor === 'custom-light' ? "#ddd" : 'white', strokeWidth: 2, stroke: "white" },
+        $(go.Shape, "RoundedRectangle", { fill: "#ddd", strokeWidth: 2, stroke: "white" },
           // the Shape.stroke color depends on whether Node.isHighlighted is true
           new go.Binding("stroke", "isHighlighted", function (h) { return h ? "red" : "black"; })
             .ofObject(), // the Shape.strokeWidth depends on whether Link.isHighlighted is true
@@ -226,22 +279,6 @@ export default class DiagramWrapper extends PureComponent {
             new go.Binding("visible", "methods", function (arr) { return arr.length > 0; }))
         )
       );
-    function convertIsTreeLink(r) {
-      return r === "generalization";
-    }
-    function convertFromArrow(r) {
-      switch (r) {
-        case "generalization": return "";
-        default: return "";
-      }
-    }
-    function convertToArrow(r) {
-      switch (r) {
-        case "generalization": return "Triangle";
-        case "aggregation": return "StretchedDiamond";
-        default: return "";
-      }
-    }
     diagram.linkTemplate =
       $(go.Link,
         {
@@ -249,17 +286,17 @@ export default class DiagramWrapper extends PureComponent {
           corner: 0,
           layerName: 'Background'//Do not cross in front of any nodes
         },
-        new go.Binding("isLayoutPositioned", "relationship", convertIsTreeLink),
+        new go.Binding("isLayoutPositioned", "relationship", this.convertIsTreeLink),
         $(go.Shape,// the Shape.stroke color depends on whether Link.isHighlighted is true
-          new go.Binding("stroke", "isHighlighted", function (h) { return h ? "red" : that.props.themeColor === 'custom-light' ? "grey" : 'white'; })
+          new go.Binding("stroke", "isHighlighted", function (h) { return h ? "red" : "grey" })
             .ofObject(),
           // the Shape.strokeWidth depends on whether Link.isHighlighted is true
           new go.Binding("strokeWidth", "isHighlighted", function (h) { return h ? 5 : 1; })
             .ofObject()),
         $(go.Shape, { scale: 1.3, fill: "white" },
-          new go.Binding("fromArrow", "relationship", convertFromArrow)),
+          new go.Binding("fromArrow", "relationship", this.convertFromArrow)),
         $(go.Shape, { scale: 1.3, fill: "white" },
-          new go.Binding("toArrow", "relationship", convertToArrow), new go.Binding("fill", "isHighlighted", function (h) { return h ? "red" : "white"; })
+          new go.Binding("toArrow", "relationship", this.convertToArrow), new go.Binding("fill", "isHighlighted", function (h) { return h ? "red" : "white"; })
             .ofObject()),
         $(go.TextBlock, { stroke: that.props.themeColor === 'custom-light' ? "black" : 'white' },  // this is a Link label
           new go.Binding("text", "text"))
@@ -283,13 +320,13 @@ export default class DiagramWrapper extends PureComponent {
   //   return nextProps.nodeDataArray !== this.props.nodeDataArray || nextProps.linkDataArray !== this.props.linkDataArray
   // }
   highLightNode = (data) => {
+    const that = this;
     const diagram = this.state.myDiagram;
     const keyArray = data?.key?.split("_");
     const key = keyArray?.length > 0 ? keyArray[0] : null;
     const node = diagram.findNodeForKey(key);
     if (node) {
       diagram.select(node);
-      console.log(node);
       diagram.startTransaction("highlight");
       // remove any previous highlighting
       diagram.clearHighlighteds();
@@ -314,9 +351,12 @@ export default class DiagramWrapper extends PureComponent {
             }
 
           }></Button>
+
         <ReactDiagram
+          ref={this.myRef}
           initDiagram={this.initDiagram}
           divClassName={this.props.themeColor === 'custom-light' ? 'diagram-component-light' : 'diagram-component-dark'}
+          style={{ backgroundColor: this.props.themeColor === 'custom-light' ? 'white' : 'black' }}
           nodeDataArray={this.props.nodeDataArray}
           linkDataArray={this.props.linkDataArray}
           onModelChange={this.handleModelChange}

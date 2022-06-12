@@ -18,9 +18,7 @@ export default class PieGraph extends PureComponent {
             'dblclick': this.goToDefinition.bind(this),
         }
     }
-    componentDidMount() {
-        console.log("pie graph props: ", this.props)
-    }
+
     /*
     饼图的配置对象
     */
@@ -80,7 +78,7 @@ export default class PieGraph extends PureComponent {
                             textStyle: {
                                 fontWeight: 'normal',
                                 fontSize: 12,
-                                color: "white",
+                                color: this.props.themeColor === 'custom-light' ? 'black' : "white",
                             }
                         }
                     },
@@ -101,15 +99,13 @@ export default class PieGraph extends PureComponent {
     switchToAnthorPie(e) {
         clearTimeout(timer);
         timer = setTimeout(() => {
-            console.log(e);
             PubSub.publish("switchFunc", e.data);
             const { setCurrentSelectNode, setExpandedTreeMenuKeys, expandedTreeMenuKeys } = this.props;
             if (e.data.children?.length > 0) { // 要有数据切换饼图
                 setCurrentSelectNode([e.data.key], e.data);
                 setExpandedTreeMenuKeys([...expandedTreeMenuKeys, e.data.key])
             }
-        }, intervalTime)
-
+        }, intervalTime);
     }
     goToDefinition(e) {
         console.log("double");

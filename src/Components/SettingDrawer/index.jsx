@@ -7,7 +7,7 @@ import './index.css';
 const { Option } = Select;
 const { TabPane } = Tabs;
 export default class SettingDrawer extends PureComponent {
-    state = { visible: false };
+    state = { visible: false, formRef: React.createRef() };
 
     showDrawer = () => {
         this.setState({
@@ -20,15 +20,31 @@ export default class SettingDrawer extends PureComponent {
             visible: false,
         });
     };
+    onReset = (e) => {
+        const resetSettings = {
+            themeDark: true,
+            composeLeft: 'pie',
+            composeRight: 'map',
+            leftRadio: 1,
+            rightRadio: 1,
+            leafDepth: 5,
+            treeMapWidth: 80,
+            treeMapHeight: 80,
+            treeMapVisibleMin: 100,
+            childrenVisibleMin: 200,
+        };
+        this.state.formRef.current.setFieldsValue(resetSettings);
+
+    }
     onFinish = (values) => {
-        console.log('Success:', values);
+        console.log('>>>>>>>>>>>> Success:', values);
         this.props.setSettings({
             ...values,
         });
     };
 
     onFinishFailed = (errorInfo) => {
-        console.log('Failed:', errorInfo);
+        console.log('>>>>>>>>>>>> Failed:', errorInfo);
     };
     render() {
         return (
@@ -43,6 +59,7 @@ export default class SettingDrawer extends PureComponent {
                 >
                     <Form
                         name="basic"
+                        ref={this.state.formRef}
                         labelCol={{ span: 8 }}
                         wrapperCol={{ span: 16 }}
                         initialValues={this.props.settings}
@@ -55,6 +72,11 @@ export default class SettingDrawer extends PureComponent {
                                 <Button onClick={this.onClose}>Cancel</Button>
                             </Form.Item>
                             <Form.Item style={{ marginLeft: '10px' }}>
+                                <Button onClick={this.onReset} type="danger" htmlType="button">
+                                    Reset
+                                </Button>
+                            </Form.Item>
+                            <Form.Item style={{ marginLeft: '10px' }}>
                                 <Button onClick={this.onClose} type="primary" htmlType="submit">
                                     Confirm
                                 </Button>
@@ -63,6 +85,7 @@ export default class SettingDrawer extends PureComponent {
                         <Form.Item
                             name="themeDark"
                             label="theme"
+                            valuePropName="checked"
                         >
                             <Switch checkedChildren="dark" unCheckedChildren="light" defaultChecked />
                         </Form.Item>
@@ -104,8 +127,8 @@ export default class SettingDrawer extends PureComponent {
                         >
                             <InputNumber min={1} />
                         </Form.Item>
-                        <Tabs defaultActiveKey="1" centered>
-                            <TabPane tab="Tree Graph" key="1">
+                        <Tabs defaultActiveKey="4" centered>
+                            {/* <TabPane tab="Tree Graph" key="1">
                                 Setting of tree graph
                             </TabPane>
                             <TabPane tab="UML Graph" key="2">
@@ -113,7 +136,7 @@ export default class SettingDrawer extends PureComponent {
                             </TabPane>
                             <TabPane tab="Pie Graph" key="3">
                                 Setting of Pie graph
-                            </TabPane>
+                            </TabPane> */}
                             <TabPane tab="Map Graph" key="4">
                                 <Form.Item
                                     label="width"

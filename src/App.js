@@ -5,6 +5,7 @@ import React, { PureComponent } from 'react'
 import { Upload, Button } from 'antd';
 import { UpOutlined, DownOutlined } from '@ant-design/icons';
 import logo from './logo.svg';
+import { postVscode } from './utils/vscode';
 import TreeMenu from './Components/TreeMenu';
 import DataList from './Components/DataList';
 import GraphArea from './Components/GraphArea';
@@ -137,30 +138,61 @@ export default class App extends PureComponent {
   allAdditionNodes = {};
   componentDidMount() {
     window.addEventListener('message', event => {
-      const message = event.data;
-      if (JSON.stringify(message).includes("label")) {
-        // this.setState({ webviewData: JSON.stringify(message) });
-        this.parseData(message.data);
+      try {
+        const message = event.data;
+        if (message?.data?.type === 'getSettings') {
+          const settings = JSON.parse((message?.data?.settings));
+          this.setState(settings);
+        } else if (JSON.stringify(message).includes("label")) {
+          // this.setState({ webviewData: JSON.stringify(message) });
+          this.parseData(message.data);
+        }
+      } catch (error) {
+        console.log(error);
       }
     });
+    if (window.vscode) {
+      postVscode({ type: 'getSettings' });
+    } else {
+      const localSettings = localStorage.getItem('settings');
+      if (!!localSettings) this.setState(JSON.parse(localSettings))
+    }
 
-    console.log("vscode: ", window.vscode);
-    window.vscode?.postMessage({
-      message: 'hello world vscode'
-    });
   }
 
 
 
   setSettings = (values) => {
-    this.setState({
+    const settingObj = {
       settings: values,
       themeColor: values.themeDark === false ? 'custom-light' : 'custom-dark',
-    });
+    }
+    if (this.state.themeColor !== settingObj.themeColor) PubSub.publish('themeChange');
+    this.setState(settingObj);
+    const settings = JSON.stringify(
+      {
+        settings: {
+          ...this.state.settings,
+          ...values
+        },
+        themeColor: values.themeDark === false ? 'custom-light' : 'custom-dark',
+      }
+    )
+    if (window.vscode) {
+      // 如果当前在VS Code扩展版webview环境中
+      postVscode({
+        type: 'setSettings',
+        settings
+      });
+    } else {
+      // Web版本
+      localStorage.setItem('settings', settings);
+    }
+
   }
 
   setExpandedTreeMenuKeys = (expandedKeys) => {
-    console.log("expandedKey !!!!!!!!!!!!!!!!!:", Array.from(new Set(expandedKeys)))
+    console.log(">>>>>>>>>>>> expandedKey:", Array.from(new Set(expandedKeys)))
     this.setState({
       expandedTreeMenuKeys: Array.from(new Set(expandedKeys))
     })
@@ -193,7 +225,6 @@ export default class App extends PureComponent {
   deepCopyAndChangeKey = (node) => {
     const strNode = JSON.stringify(node);
     const keyReg = /\"key":\"(.*?)\"/g;
-    // console.log("before:", JSON.parse(strNode));
     const copyNodeDataList = [];
     const newStrNode = strNode.replace(keyReg, ($0, $1) => {
       const newKey = `${$1.split("_")[0]}_${nanoid()}`;
@@ -203,7 +234,6 @@ export default class App extends PureComponent {
       })
       return `"key": "${newKey}"`;
     });
-    // console.log("after: ", JSON.parse(newStrNode));
     const newNode = JSON.parse(newStrNode);
     this.addAllAdditionNodes(newNode);
     return [newNode, copyNodeDataList];
@@ -213,7 +243,6 @@ export default class App extends PureComponent {
       const reader = new FileReader();
       reader.readAsText(file);
       reader.onload = () => {
-        // console.log(reader.result)
         const data = reader.result;
         this.parseData(data);
       };
@@ -222,12 +251,7 @@ export default class App extends PureComponent {
   }
 
   parseData = data => {
-    console.log("##############################", JSON.stringify(this.state.webviewData) == JSON.stringify(data))
     this.setState({ webviewData: JSON.stringify(data) })
-    console.log("@@@@@@@", JSON.stringify(data));
-    console.log(JSON.parse(JSON.stringify(data)));
-    console.log(data)
-
     const splitArray = data.split(/\n/); // 按行读取
     const resultArray = splitArray.slice(1, splitArray.length - 2);
     let splitIndex = 0;
@@ -239,8 +263,8 @@ export default class App extends PureComponent {
     }
     const funcArray = resultArray.slice(0, splitIndex);
     const callArray = resultArray.slice(splitIndex);
-    console.log("funcArray:", funcArray);
-    console.log("callArray:", callArray);
+    console.log(">>>>>>>>>>>> funcArray:", funcArray);
+    console.log(">>>>>>>>>>>> callArray:", callArray);
 
     // 提取信息的正则
     const funcReg = /(\s)*\"(.+?)\" \[label = \"(.+?)\\n(.+?)\\n(.+?)\"](\s)*/;
@@ -249,32 +273,17 @@ export default class App extends PureComponent {
     const nodeArray = [];
     funcArray.forEach(item => {
       const info = funcReg.exec(item);
-      console.log(info[5].split(" "))
       const totalAvg = parseFloat(info[4].split(" ")[1]);
       const selfAvg = parseFloat(info[5].split(" ")[1]);
-      console.log("selfAvg: ", selfAvg, "   equals to 0: ", selfAvg === 0);
       const newNode = {
         name: info[3],
         title: info[3],
-        "category": "step",
         text: info[3],
         key: info[2],
         value: totalAvg,
         total: info[4],
         self: info[5],
-        children: selfAvg !== 0 ? [
-          //   {
-          //   name: "self",
-          //   title: "self",
-          //   "category": "step",
-          //   text: "self",
-          //   key: `${info[2]}_self_${nanoid()}`,
-          //   total: "",
-          //   self: "",
-          //   children: [],
-          //   value: selfAvg
-          // }
-        ] : [],
+        children: [],
         properties: [
           {
             name: info[4]
@@ -289,8 +298,6 @@ export default class App extends PureComponent {
       tempNodeList[newNode.key] = [newNode];
       nodeArray.push(newNode);
     })
-    console.log("nodeArray: ", JSON.stringify(nodeArray));
-
     const tempRelationList = this.state.relationList;
     const relationArray = [];
     callArray.forEach(item => {
@@ -302,17 +309,14 @@ export default class App extends PureComponent {
         text: info[3],
         relationship: "generalization"
       };
-      console.log(parseFloat(info[3]));
       relationArray.push(newRelation);
       tempRelationList[`${newRelation.from}->${newRelation.to}`] = newRelation;
       const toNodeList = tempNodeList[newRelation.to];
-      // console.log(`${newRelation.from}->${newRelation.to}`)
       const list = tempNodeList[newRelation.from].length === 1 ? tempNodeList[newRelation.from] : tempNodeList[newRelation.from].slice(1);
       list.forEach(item => {
         const [copyNode, copyNodeDataList] = this.deepCopyAndChangeKey(toNodeList[toNodeList.length - 1]);
         copyNode["value"] = parseFloat(newRelation.label);
         item.children.push(copyNode);
-        // tempNodeList[newRelation.to] = [...tempNodeList[newRelation.to], copyNode];
         tempNodeList[newRelation.to].push(copyNode);
         copyNodeDataList.slice(1).forEach((copyItem) => {
           tempNodeList[copyItem.originKey].push(this.allAdditionNodes[copyItem.key]);
@@ -320,8 +324,8 @@ export default class App extends PureComponent {
       });
     })
     const enter = Object.values(tempNodeList).filter(item => item.length === 1)[0][0];
-    console.log("enter:  ", enter)
-    console.log("nodeList: ", tempNodeList);
+    console.log(">>>>>>>>>>>> enter:  ", enter)
+    console.log(">>>>>>>>>>>> nodeList: ", tempNodeList);
 
     // 为了uml图点击该节点可以正常联动
     nodeArray.forEach(node => {
@@ -329,6 +333,20 @@ export default class App extends PureComponent {
       if (len >= 0) node.children = tempNodeList[node.key][len - 1].children;
 
     })
+    const a = [
+      {
+        "from": "func1",
+        "to": "func2",
+        "label": "50.000%",
+        "text": "50.000%",
+      },
+      {
+        "from": "func1",
+        "to": "func3",
+        "label": "20.000%",
+        "text": "20.000%",
+      }
+    ]
     PubSub.publish("ongoing", {});
     this.setState({
       expandedTreeMenuKeys: [],
@@ -339,24 +357,21 @@ export default class App extends PureComponent {
       currentSelectNode: enter,
       data: enter
     })
-    console.log("relationArray: ", JSON.stringify(relationArray));
-    // this.setState({ webviewData: JSON.stringify(relationArray) })
-
-    // console.log("nodeList: ", tempNodeList);
-    // console.log("relationList: ", tempRelationList);
-    // console.log(resultArray);
+    console.log(">>>>>>>>>>>> relationArray: ", JSON.stringify(relationArray));
   }
   render() {
     const { themeColor } = this.state;
     return (
       <>
         <ConfigProvider prefixCls={themeColor}>
-          <div className={`App ${themeColor}`} style={{ backgroundColor: themeColor === 'custom-light' ? '#fff' : '#1e1e1e' }}>
+          <div className={`App ${themeColor}`}
+            style={
+              { backgroundColor: themeColor === 'custom-light' ? '#fff' : '#1e1e1e' }
+            }>
             <div className="content">
               {/* webviewData：
             {`${this.state.webviewData}1`} */}
               {/* 页面左边的树形菜单 */}
-
               <div className="treeMenu" >
                 <Upload listType='text' beforeUpload={this.beforeUpload}>
                   <Button icon={<UploadOutlined />}>Upload</Button>

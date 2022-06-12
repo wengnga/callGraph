@@ -32,22 +32,12 @@ const columns = [
 
 export default class DataList extends PureComponent {
     componentDidMount() {
-        console.log("!!!!!!!!!!")
         console.log(this.props)
     }
     render() {
         return (
             <div>
                 <Table {...this.props} columns={columns} size="small" pagination={false}
-                // onRow={record => {
-                //     return {
-                //         onClick: event => { }, // 点击行
-                //         onDoubleClick: event => { event.persist(); console.log(event) },
-                //         onContextMenu: event => { },
-                //         onMouseEnter: event => { }, // 鼠标移入行
-                //         onMouseLeave: event => { },
-                //     };
-                // }}
                 />
             </div>
         )

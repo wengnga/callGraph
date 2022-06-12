@@ -13,13 +13,12 @@ export default class TreeGraph extends PureComponent {
         console.log(e)
     }
     getOptions = () => {
-        console.log("treeGraph:   ", this.props)
-
         return {
             tooltip: {
                 trigger: 'item',
-                triggerOn: 'mousemove'
+                triggerOn: 'mousemove',
             },
+
             series: [
                 {
                     type: 'tree',
@@ -30,17 +29,19 @@ export default class TreeGraph extends PureComponent {
                     right: '20%',
                     initialTreeDepth: 10, // 树节点全部展开
                     symbolSize: 7,
+                    grid: { containLabel: true },
                     label: {
                         position: 'left',
                         verticalAlign: 'middle',
                         align: 'right',
-                        fontSize: 9,
+                        fontSize: 10,
                         color: this.props.themeColor === 'custom-light' ? 'black' : "white",
                     },
                     tooltip: {
                         trigger: 'item',
                         triggerOn: 'mousemove',
-                        enterable: true,//鼠标是否可进入提示框浮层中
+                        enterable: true, //鼠标是否可进入提示框浮层中
+                        // 鼠标移到节点上方显示的提示
                         formatter: function (params) {
                             const { data: { name, value, self, total } } = params;
                             return `${name}: ${value}%<br/>${total}<br/>${self}`
@@ -62,9 +63,7 @@ export default class TreeGraph extends PureComponent {
                     symbolSize: 10,
                     roam: true
                 },
-
             ],
-
         }
     }
     componentDidMount() {

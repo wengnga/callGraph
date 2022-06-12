@@ -10,9 +10,6 @@ const { TabPane } = Tabs;
 export default class GraphArea extends PureComponent {
     render() {
         const { composeLeft, composeRight, leftRadio, rightRadio } = this.props.settings;
-        console.log("leftRadio:", leftRadio)
-        console.log("rightRadio:", rightRadio)
-
         return (
             <Tabs defaultActiveKey="mapGraph" tabPosition="top" centered>
                 <TabPane
@@ -85,8 +82,6 @@ export default class GraphArea extends PureComponent {
                             {composeRight === 'map' && <MapGraph {...this.props} />}
                             {composeRight === 'uml' && <DiagramWrapper {...this.props} />}                        </div>
                     </div>
-
-
                 </TabPane>
             </Tabs>
         )

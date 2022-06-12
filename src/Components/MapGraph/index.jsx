@@ -20,7 +20,6 @@ export default class MapGraph extends Component {
     switchToAnthorPie(e) {
         clearTimeout(timer);
         timer = setTimeout(() => {
-            console.log(e);
             PubSub.publish("switchFunc", e.data);
             const { setCurrentSelectNode, setExpandedTreeMenuKeys, expandedTreeMenuKeys } = this.props;
             if (e.data.children?.length > 0) { // 要有数据切换饼图
@@ -31,12 +30,10 @@ export default class MapGraph extends Component {
 
     }
     goToDefinition(e) {
-        console.log("double");
         clearTimeout(timer);
         postVscode(e.data);
     }
     shouldComponentUpdate(nextProps, nextState) {
-        // console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", data);
         return nextProps.allData !== this.props.allData || nextProps.settings !== this.props.settings
     }
     /*
@@ -801,14 +798,6 @@ export default class MapGraph extends Component {
             ]
         }
     };
-
-    componentDidMount() {
-        console.log("allData:", this.props.allData)
-        // this.setState({
-        //     options: this.getOption(this.props.allData)
-        // })
-
-    }
 
     render() {
         return (

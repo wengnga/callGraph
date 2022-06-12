@@ -1,22 +1,23 @@
 {
 	"name": "callgraph",
 	"displayName": "CallGraph",
-	"description": "",
+	"description": "支持高性能并行程序开发和优化的性能可视化工具",
 	"version": "0.0.1",
 	"engines": {
 		"vscode": "^1.65.0"
 	},
+	"author": "DaiYongYa",
 	"categories": [
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:callgraph.helloWorld"
+		"onCommand:callgraph.showWebview"
 	],
 	"main": "./extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "callgraph.helloWorld",
+				"command": "callgraph.showWebview",
 				"title": "open callGraph"
 			}
 		],
@@ -24,7 +25,7 @@
 			"explorer/context": [
 				{
 					"when": "resourceFilename =~ /(.)+\\.(txt|dot)/",
-					"command": "callgraph.helloWorld",
+					"command": "callgraph.showWebview",
 					"group": "navigation"
 				}
 			]

@@ -9,8 +9,8 @@ export default class TreeMenu extends PureComponent {
     }
 
     onSelect = (selectedKeys, info) => {
-        console.log('selected', selectedKeys, info);
-        PubSub.publish("switchFunc", info.node);
+        console.log('>>>>>>>>>>>> selected', selectedKeys, info);
+        PubSub.publish(">>>>>>>>>>>> switchFunc", info.node);
 
         const { expandedTreeMenuKeys, setExpandedTreeMenuKeys } = this.props;
         // 当前已展开的节点不含现在所选的结点的话，就展开现在所选的结点
@@ -21,7 +21,7 @@ export default class TreeMenu extends PureComponent {
     };
 
     onExpand = (expandedKeys, info) => {
-        console.log('expanded', expandedKeys, info);
+        console.log('>>>>>>>>>>>> expanded', expandedKeys, info);
         this.props.setExpandedTreeMenuKeys(expandedKeys);
     };
 
